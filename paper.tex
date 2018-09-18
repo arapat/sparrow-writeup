@@ -1,0 +1,174 @@
+%%%%%%%% SysML 2019 EXAMPLE LATEX SUBMISSION FILE %%%%%%%%%%%%%%%%%
+
+\documentclass{article}
+
+% Recommended, but optional, packages for figures and better typesetting:
+\usepackage{microtype}
+\usepackage{graphicx}
+\usepackage{subfigure}
+\usepackage{booktabs} % for professional tables
+
+% authors added following packages
+\usepackage{multirow}
+
+% hyperref makes hyperlinks in the resulting PDF.
+% If your build breaks (sometimes temporarily if a hyperlink spans a page)
+% please comment out the following usepackage line and replace
+% \usepackage{sysml2019} with \usepackage[nohyperref]{sysml2019} above.
+\usepackage{hyperref}
+
+% Attempt to make hyperref and algorithmic work together better:
+\newcommand{\theHalgorithm}{\arabic{algorithm}}
+
+% Use the following line for the initial blind version submitted for review:
+\usepackage{sysml2019}
+
+% If accepted, instead use the following line for the camera-ready submission:
+%\usepackage[accepted]{sysml2019}
+
+% The \sysmltitle you define below is probably too long as a header.
+% Therefore, a short form for the running title is supplied here:
+\sysmltitlerunning{Submission and Formatting Instructions for SysML 2019}
+
+% commands for commenting
+\newcommand{\sidecomment}[2]{\marginpar{\footnotesize{\textcolor{#1}{#2}}}}
+\newcommand{\janote}[1]{\sidecomment{red}{#1}}
+\newcommand{\yonote}[1]{\sidecomment{blue}{#1}}
+
+% all other commands
+\newtheorem{theorem}{Theorem}
+\newtheorem{corollary}{Corollary}
+\newtheorem{definition}{Definition}
+\newcommand{\cH}{\mathcal{W}}
+\newcommand{\cX}{\mathcal{X}}
+\newcommand{\cY}{\mathcal{Y}}
+\newcommand{\cL}{\mathcal{L}}
+\newcommand{\binary}{\{-1, 1\}}
+\newcommand{\bR}{\mathbb{R}}
+\newcommand{\adaboost}{AdaBoost}
+\newcommand{\adtree}{ADTree}
+\newcommand{\stumpboost}{StumpBoost}
+\newcommand{\err}{\mbox{err}}
+\newcommand{\errub}{\widehat{\mbox{err}}}
+\newcommand{\edge}{\gamma}
+\newcommand{\edgeEmp}{\hat{\edge}}
+\newcommand{\sign}{\mbox{sign}}
+\newcommand{\bx}{{\bf x}}
+\newcommand{\Dist}{{\cal D}}
+\newcommand{\var}{\mbox{Var}}
+\newcommand{\std}{\mbox{std}}
+\newcommand{\training}{{\cal S}}
+\newcommand{\Z}{Z_{\training}}
+\newcommand{\Ztest}{{\mathbf Z}}
+\newcommand{\neff}{{n_{\mbox{eff}}}}
+\newcommand{\Pre}{{\cal P}}
+\newcommand{\cond}{{\cal C}}
+\newcommand{\Rule}{{\cal R}}
+\newcommand{\D}{{\cal D}}
+\newcommand{\margin}{{\mathrm margin}}
+\newcommand{\true}{{\bf T}}
+\renewcommand{\H}{{\cal H}}
+\renewcommand{\S}{{\bf S}}
+
+\newcommand{\tmsn}{{\bf TMSN}}
+\newcommand{\Sparrow}{{\bf Sparrow}}
+
+\newcommand{\eff}{\mbox{ess}}
+\newcommand{\wsum}{\sum_{i=1}^n w_i}
+\newcommand{\wsqSum}{\sum_{i=1}^n w_i^2}
+
+\newcommand{\weakRules}{{\cal W}}
+\newcommand{\strongRules}{{\cal H}}
+
+\begin{document}
+
+\twocolumn[
+\sysmltitle{Tell Me Something New:\\
+A New Framework for Asynchronous Parallel Learning}
+
+% It is OKAY to include author information, even for blind
+% submissions: the style file will automatically remove it for you
+% unless you've provided the [accepted] option to the sysml2019
+% package.
+
+% List of affiliations: The first argument should be a (short)
+% identifier you will use later to specify author affiliations
+% Academic affiliations should list Department, University, City, Region, Country
+% Industry affiliations should list Company, City, Region, Country
+
+% You can specify symbols, otherwise they are numbered in order.
+% Ideally, you should not use this facility. Affiliations will be numbered
+% in order of appearance and this is the preferred way.
+\sysmlsetsymbol{equal}{*}
+
+\begin{sysmlauthorlist}
+\sysmlauthor{Julaiti Alafate}{ucsd}
+\sysmlauthor{Yoav Freund}{ucsd}
+\end{sysmlauthorlist}
+
+\sysmlaffiliation{ucsd}{
+Department of Computer Science and Engineering,
+University of California, San Diego,
+La Jolla, CA, USA}
+
+\sysmlcorrespondingauthor{Julaiti Alafate}{jalafate@eng.ucsd.edu}
+\sysmlcorrespondingauthor{Yoav Freund}{yfreund@ucsd.edu}
+
+% You may provide any keywords that you
+% find helpful for describing your paper; these are used to populate
+% the "keywords" metadata in the PDF but will not be shown in the document
+% \sysmlkeywords{Machine Learning, SysML}
+
+\vskip 0.3in
+
+\begin{abstract}
+We present a novel approach for parallel computation in the context of
+machine learning that we call ``Tell Me Something New'' (\tmsn). This
+approach involves a set of independent workers that use broadcast to
+update each other when they observe ``something new''. \tmsn\ does not
+require synchronization or a head node and is highly resilient against
+failing machines or laggards.
+We demonstrate the utility \tmsn\ by applying it to learning boosted
+trees. We show that our implementation is 10 times faster than
+XGBoost~\cite{chen_xgboost:_2016} and LightGBM~\cite{ke_lightgbm:_2017} on the splice-site prediction
+problem~\cite{sonnenburg_coffin:_2010, agarwal_reliable_2014}.
+\end{abstract}
+]
+
+% this must go after the closing bracket ] following \twocolumn[ ...
+
+% This command actually creates the footnote in the first column
+% listing the affiliations and the copyright notice.
+% The command takes one argument, which is text to display at the start of the footnote.
+% The \sysmlEqualContribution command is standard text for equal contribution.
+% Remove it (just {}) if you do not need this facility.
+
+%\printAffiliationsAndNotice{}  % leave blank if no need to mention equal contribution
+\printAffiliationsAndNotice{\sysmlEqualContribution} % otherwise use the standard text.
+
+
+\input{intro}
+\input{tmsn}
+\input{theory}
+\input{algorithms}
+\input{experiments}
+
+
+\bibliography{ms}
+\bibliographystyle{sysml2019}
+
+
+\end{document}
+
+
+% This document was modified from the file originally made available by
+% Pat Langley and Andrea Danyluk for ICML-2K. This version was created
+% by Iain Murray in 2018. It was modified from a version from Dan Roy in
+% 2017, which was based on a version from Lise Getoor and Tobias
+% Scheffer, which was slightly modified from the 2010 version by
+% Thorsten Joachims & Johannes Fuernkranz, slightly modified from the
+% 2009 version by Kiri Wagstaff and Sam Roweis's 2008 version, which is
+% slightly modified from Prasad Tadepalli's 2007 version which is a
+% lightly changed version of the previous year's version by Andrew
+% Moore, which was in turn edited from those of Kristian Kersting and
+% Codrina Lauth. Alex Smola contributed to the algorithmic style files.

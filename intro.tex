@@ -1,0 +1,120 @@
+\section{Introduction}\label{sec:intro}
+
+Ever-larger training sets call for ever faster learning algorithms.
+On the other hand, computer clock rates are unlikely to increase
+beyond 4\,GHz in the foreseeable future.  As a result there is a keen
+interest in parallelized machine
+learning algorithms~\cite{bekkerman_scaling_2012}.
+
+The most common approach to parallel ML is based on Valiant's bulk
+synchronous~\cite{valiant_bridging_1990} model. This approach calls for a
+set of workers and a master. The system works in (bulk) iterations. In each iteration
+the master sends a task to each worker and then waits for its
+response. Once {\em all} machines responded, the master proceeds to the
+next iteration. Thus the head node enforces synchronization (at the
+iteration level) and maintains
+a state that is shared by all of the workers.
+
+Unfortunately, bulk synchronization does not scale well to more than
+10--20 computers. Network congestion, latencies due to synchronization,
+laggards, and failing computers result in diminishing benefits from
+adding more workers to the
+cluster~\cite{zaharia_apache_2016,mcsherry_scalability!_2015}.
+
+There have been several attempts to break out of the bulk-synchronized
+framework, most notably the work of Recht et~al.\ on
+Hogwild~\cite{recht_hogwild:_2011} and Lian et~al.\ on asynchronous stochastic descent~\cite{lian_asynchronous_2015}. Hogwild
+significantly reduces the synchronization penalty by using
+asynchronous updates and parameter servers. The basic idea is to
+decentralize the task of maintaining a global state and relying on
+sparse updates to limit the frequency of update clashes.
+
+\paragraph{Tell Me Something New}
+
+Our first contribution is a new approach for parallelizing ML algorithms
+which eliminates synchronization and the global state and instead uses a
+distributed policy that guarantees progress. We call this approach
+``Tell Me Something New'' (\tmsn). To explain \tmsn\ we start with an
+analogy.
+
+Consider a team of a hundred investigators that is going through
+thousands of documents to build a criminal case where time is of the
+issue. Assume also that most of the documents contain little or no new
+information. How should the investigators communicate their findings
+with each other? We contrast the bulk-synchronous (BS) approach and the
+\tmsn\ approach. In the BS approach, each investigator takes a stack
+of documents to their cubicle and reads through it. Then all of the
+investigator meet in a room and tell each other what they found. Once
+they are done, the process repeats. One problem with this approach is
+that the fast readers have to wait for the slow readers. Another is
+that a decision needs to be made as to how many documents or pages, to
+put in each stack. Too many and the iterations would be very slow, too
+few and all of the time would be spent in meetings.
+
+The \tmsn\ approach is radically different. In this approach, each
+investigator gets documents independently according to their speed of
+reading and work habits. There is no meeting either. Instead, when
+an investigator finds a piece of information that she believes is new,
+she stands up in her cubicle and tells all of the other workers about
+it. This has several advantages: nobody is ever waiting for anybody
+else; the new information is broadcasted as soon as it is available, and
+the system is fault resilient --- somebody falling asleep has little
+effect on the others.
+The analogy to parallel ML maps investigators
+to computers, ``case'' to ``model'', and ``new information'' to
+``improved model''.
+
+\iffalse
+Consider a team of investigators that is going through
+thousands of documents to build a criminal case. Assume also that most
+of the documents contain no new information. It makes little sense for
+them to send each other a summary of each document they read, they
+would just be wasting each other's time that way. What would make more
+sense is for each to sit reading in their cubicle until one of them
+identifies a document with new information, that person than stands
+up, interrupts all of the other people, and gives each of them a
+summary of what they found. This ensures that all of the investigators
+are updated as soon as new information is available, but are otherwise
+left to do their work.
+\fi
+
+More concretely, \tmsn\ for model learning works as follows. Each
+worker has a model $H$ and an upper bound $L$ on the true loss of
+$H$. The worker searches for a better model $H'$ whose loss upper
+bound is $L'$. If $L'$ is significantly smaller than $L$, then the
+worker takes two actions. First, $H',L'$ replaces $H,L$. Second
+$(H',L')$ is broadcast to all other workers.  Each worker also listens
+to the broadcast channel. If it receives pair $(H',L')$ it checks
+whether $L'$ is significantly lower than its own upper bound $L$. If
+it is, the worker replaces $(H,L)$ with $(H',L')$. Otherwise, the worker discards the
+pair.
+
+\paragraph{Boosting trees using TMSN}
+Our second contribution is an application of \tmsn\ to boosted
+decision trees. Boosted trees is a highly effective and widely used
+machine learning method. In recent years there have been several
+implementations of boosting that greatly improve over previous
+implementations in terms of running time, in particular,
+XGBoost~\cite{chen_xgboost:_2016} and
+LightGBM~\cite{ke_lightgbm:_2017}. These implementations scale up to
+training sets of many millions, or even billions of training examples.
+Both implementations can run in one of two configurations: a
+memory-only configuration where all of the training data is stored in
+main memory, and a memory and disk configuration where the data is on
+disk and is copied into memory when needed. The memory-only version is
+significantly faster, but require a machine with very large
+memory.
+
+We present an implementation of boosting tree learning using
+\tmsn\ that we call \Sparrow. This is a disk and memory
+implementation, which requires only a fraction of the training data to
+be stored in memory.  Yet, as our comparative experiments show, it is
+about 10 times faster than XGBoost and LightGBM using the {\em memory
+  only} configuration.
+
+The rest of the paper is divided into four sections.
+First we give a general description of \tmsn\ in Section~\ref{sec:tmsn}.
+Then we introduce a special application of our algorithm, namely \Sparrow, in Section~\ref{sec:boost}.
+After that we describe in more details of the algorithms and the system design of \Sparrow\ in
+Section~\ref{sec:Algorithms}.
+Finally, we present empirical results in Section~\ref{sec:experiments}.
