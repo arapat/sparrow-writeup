@@ -1,6 +1,53 @@
 \section{Tell Me Something New}\label{sec:tmsn}
 We start with a general description of \tmsn\ which will be followed
-by a description of \tmsn\ for boosting. To streamline our presentation
+by a description of \tmsn\ for boosting.
+
+Many learning algorithms can be described as {\em loss
+  minimizing}. The goal of such algorithm is to find a model that
+minimizes some loss function on the training data.  Loss minimizing
+algorithms often operate {\em incrementally}. Here are a few examples:
+Each step in a {\em stochastic gradient descent} algorithm corresponds
+to an update step of the parameters that decreases the loss on a
+single example. A {\em tree learning algorithm} repeatedly identifies
+which leaf to split so as to minimize an ``impurity'' function. A {\em 
+  Boosting} algorithm finds a weak rule that minimizes the
+classification error with respect to a weighted sample.
+
+The goal of a loss minimizing algorithm is to minimize the {\em true
+  expected loss} with respect to the underlying distribution. However,
+the algorithm cannot minimize the expected loss directly, instead, it
+minimizes the {\em empirical loss} measured with respect to the
+training set. The difference between the training loss and the test
+loss is the {\em overfit} which decreases as the size of the training
+set increases. This leads to a natural tradeoff between run-time and
+the amount of overfit. A larger training set gives more accurate
+estimates but longer running time and vice versa.
+
+One example of this tradeoff is the different types of gradient
+descent. At one extreme, batch gradient descent computes the gradient
+using all of the training data and then makes an update step. At the
+other extreme, SGD makes an update step after reading each
+example. Mini-batch SGD lies in the middle, where an update is
+performed after each mini-batch. Experience has shown that SGD
+converges fater than batch gradient descent is useful in parallelized
+SGD.
+
+In this paper we describe a novel approach to balancing compute-time
+and accuracy. Our algorithm computes, in addition to the estimate of
+the loss, an estimate of the {\em error} in the loss estimate. When
+this error estimate is sufficiently small, the algorith stops reading
+data and uses the current estimate.
+
+We call this approach to machine learning ``tell me something new'' or
+\tmsn. In the next section we provide a general theory for \tmsn.
+
+We denote a model by $M$, a randomly selected datapoint
+by $\vx$\footnote{The \tmsn\ framework can be applied to both
+  supervised and unsupervised learning.} and the loss associated with
+model $M$ applied to the example $\vx$ by $L(M,\vx)$. Using this
+notation 
+$\vec{x}$ 
+To streamline our presentation
 we consider binary classification, but other supervised or
 unsupervised learning problem can be accommodated with little change.
 
