@@ -128,16 +128,32 @@ La Jolla, CA, USA}
 \vskip 0.3in
 
 \begin{abstract}
-We present a novel approach for parallel computation in the context of
-machine learning that we call ``Tell Me Something New'' (\tmsn). This
-approach involves a set of independent workers that use broadcast to
-update each other when they observe ``something new''. \tmsn\ does not
-require synchronization or a head node and is highly resilient against
-failing machines or laggards.
-We demonstrate the utility \tmsn\ by applying it to learning boosted
-trees. We show that our implementation is 10 times faster than
-XGBoost~\cite{chen_xgboost:_2016} and LightGBM~\cite{ke_lightgbm:_2017} on the splice-site prediction
-problem~\cite{sonnenburg_coffin:_2010, agarwal_reliable_2014}.
+In this paper we present several methods for reducing the I/O
+and communication requirements of parallelized tree boosting.
+
+The inner loop of the tree boosting algorithm is a search for
+splitting rules. This search is guided by estimates of the purity
+function. Traditionally, these estimates are based on {\em all
+  available data}. Our first observation is that, when the training
+data is large, it is sometimes sufficent to compute an estimate based
+on just a small fraction of the data. This results in a reduce memory
+footprint and faster execution.
+
+Our second obsrvation regards the parallelization of the search
+process. For this case we propose an asynchronous communication we
+call ``Tell Me Something New'' or \tmsn\. According to this protocol
+the first computer to find a good rule interrupts the search of the
+other machines. We show that this protocol can yield significant
+saving in time when compared to bulk-synchronous parallelism.  It is
+also highly robust to laggards and to computer failure.
+
+We implemented our methods applied the implementation to the
+splice-site prediction problem~\cite{sonnenburg_coffin_2010,
+  agarwal_reliable_2014}. We compare our performance to that of 
+SparkML~\cite{}
+XGBoost~\cite{chen_xgboost:_2016},
+LightGBM~\cite{ke_lightgbm:_2017}. Our implementation is about ten
+times faster than the alternatives (fill in when we have details).
 \end{abstract}
 ]
 
