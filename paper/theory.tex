@@ -1,4 +1,6 @@
 \section{Theory of \tmsn}~\label{sec:theory}
+In this section we provide the mathematical underpinning of our algorithm.
+
 We start with a general description of loss-based learning. This
 description can apply to both supervised and unsupervised learning.
 
@@ -40,10 +42,12 @@ samples ($n$ above) is not chosen in advance. Instead, after each sample a
 so-called ``stopping rule'' is evaluated. The stopping rule has three
 possible outputs: ``$M_1$ has smaller loss'', ``$M_2$ has smaller
 loss'' or ``Insufficient data, take another sample''. The result is
-that if the gap is large, the number of samples used is much smaller
-than $n$.
+that if the gap is large, the number of samples used be the stopping
+rule is much smaller than $n$, reducing the memory load of the program.
 
 \subsubsection*{Weighted samples}
+
+In 
 
 \subsubsection*{Stopping rule for weighted samples}
 
