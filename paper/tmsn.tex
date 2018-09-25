@@ -1,43 +1,84 @@
-\section{Tell Me Something New}\label{sec:tmsn}
-We start with a general description of \tmsn\ which will be followed
-by a description of \tmsn\ for boosting.
+\section{SQ Learning and stopping rules}\label{sec:tmsn}
 
-Many learning algorithms can be described as {\em loss
-  minimizing}. The goal of such algorithm is to find a model that
-minimizes some loss function on the training data.  Loss minimizing
-algorithms often operate {\em incrementally}. Here are a few examples:
-Each step in a {\em stochastic gradient descent} algorithm corresponds
-to an update step of the parameters that decreases the loss on a
-single example. A {\em tree learning algorithm} repeatedly identifies
-which leaf to split so as to minimize an ``impurity'' function. A {\em 
-  Boosting} algorithm finds a weak rule that minimizes the
-classification error with respect to a weighted sample.
+We start with description of Statistical query learning algorithms and
+stopping rules.
 
-The goal of a loss minimizing algorithm is to minimize the {\em true
-  expected loss} with respect to the underlying distribution. However,
-the algorithm cannot minimize the expected loss directly, instead, it
-minimizes the {\em empirical loss} measured with respect to the
-training set. The difference between the training loss and the test
-loss is the {\em overfit} which decreases as the size of the training
-set increases. This leads to a natural tradeoff between run-time and
-the amount of overfit. A larger training set gives more accurate
-estimates but longer running time and vice versa.
+Most learning algorithm can be described as a combination of
+statistical estimation steps and minimization steps. Examples include
+mini-batch SGD which estimate the gradient at each iteration, Decision
+tree algorithms that maximize a purity function and Boosting
+algorithms that minimize weighted error. This broad family of
+algorithms can be formalized as Statistical Query algorithms (SQ
+algorithms)~\ref{kearnsSQ}.
 
-One example of this tradeoff is the different types of gradient
-descent. At one extreme, batch gradient descent computes the gradient
-using all of the training data and then makes an update step. At the
-other extreme, SGD makes an update step after reading each
-example. Mini-batch SGD lies in the middle, where an update is
-performed after each mini-batch. Experience has shown that SGD
-converges fater than batch gradient descent is useful in parallelized
-SGD.
+Te statistical query model defines an interface between the learning
+algorithm and the training data. Rather than giving the algorithm
+direct access to the examples, it is restricted to making queries of
+the form ``What is the expected value of the random variable X?''
+For example, consider the query ``what is the error rate of the
+classifier $c$?'' this query can be written as
+$$\mbox{ What is } E\left[\mathbbm{1}(c(\vx)\neq y)\right] \mbox{ ?}$$
+where $\mathbbm{1}(c(\vx)\neq y)$ is the error indicator function that is
+$1$ when $c(\vx) \neq y$ and $0$ otherwise.
 
-In this paper we describe a novel approach to balancing compute-time
-and accuracy. Our algorithm computes, in addition to the estimate of
-the loss, an estimate of the {\em error} in the loss estimate. When
-this error estimate is sufficiently small, the algorith stops reading
-data and uses the current estimate.
+A general a statistical query is defined by a function over the
+sample space (i.e. a random variable) $Q:X \to [0,1]$ an error parameter
+$\epsilon>0$ and an accuracy parameter $\delta>0$. The answer to a
+query is an estimate of the expected value $E[Q]$ which we denote
+$\hat{E}[Q]$. The difference between the true expectation and the
+estimate shoud be smaller than $\epsilon$ with probability at least
+$1-\delta$ over the random chice of the training set $T$. In other words
+\[
+\Prob{T \sim \Dist^n}{|E[Q] -\hat{E}[Q]| \geq \epsilon } \leq \delta
+\]
 
-We call this approach to machine learning ``tell me something new'' or
-\tmsn. In the next section we provide a general theory for \tmsn.
+The most common estimator $\hat{E}[Q]$ is the unweighted average of the random
+variable over a training set of size $n$:
+\[
+\hat{E}[Q] = \frac{1}{n} \sum_{i=1}^n Q(\vx_i)
+\]
+A standard bound (Hoeffding) on the error of the estimate is
+\begin{equation} \label{eqn:hoeffding}
+\Prob{T \sim \Dist^n}{|E[Q] -\hat{E}[Q]| \geq \epsilon} \leq
+2e^{-2 \epsilon^2 n}
+\end{equation}
+Inverting the relation we find that the size of the training set
+should satisfy $n > (1/2 \epsilon^2)\log (2/\delta)$.
 
+This bound is {\em sufficient} to guarantee an accurate answer to the
+query, but it is not {\em necessary}. It is tight if the variance of
+$Q$ is $1/4$ which is attained if $Q(\vx)=0,1$ with probabilities
+$(1/2,1/2)$ $1/2$. If the variance of $Q$ is smaller than $1/4$ then a
+smaller sample will suffice. However, as we don't know the
+distribution of $A$, how can we take advantage of this gap?
+
+Wald~/cite{wald_sequential_1973} proposed an approach called
+``sequential analysis'' (SQ) that answers this question.  In SQ the
+number of training examples ($n$ above) is not chosen in
+advance. Instead, after each sample the estimate is updated and a
+a so-called ``stopping rule'' is evaluated. The stopping rule has
+two possible outputs:
+\begin{itemize}
+\item estimate is sufficiently accurate - stop.
+\item estimate is not sufficiently accurate - add a sample to
+  training set and repeat.
+\end{itemize}
+The stopping rule $S(\vx_1\ldots,\vx_t)$ is required to stop (with
+high probability) only when the estimate is close to the true value.
+\[
+\P{\vx_1,\vx_2,\ldots}{\exists t>0 \mbox{ s.t. } S(\vx_1,\ldots,\vx_t)
+  = \mbox{stop }\mbox{ and } |E[Q] -\hat{E}[Q]| \geq \epsilon} \leq \delta
+\]
+A stopping rule $S_1$ is better than another stopping rule $S_2$ if
+they both satisfy the same requirement, $S_1$ never stops later than
+$S_2$ and sometimes it stops earlier.
+
+Stopping rules are similar to generalization abounds for a fixed
+training set size $n$. However, they play a very different role in the
+design of learning algorithms. Generalization bounds are used mostly
+in the analysis of an algorithm. As such, they need to be correct up
+to multiplicative constants. On the other hand, stopping rules are
+used {\em inside} the algorithm, so their analysis is directly tied to
+the performance of the algorithm.
+
+\section{Tell Me Somthing new}

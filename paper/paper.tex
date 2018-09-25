@@ -7,7 +7,7 @@
 \usepackage{graphicx}
 \usepackage{subfigure}
 \usepackage{booktabs} % for professional tables
-
+\usepackage{bbm}
 % authors added following packages
 \usepackage{multirow}
 
@@ -92,7 +92,8 @@
 \begin{document}
 
 \twocolumn[
-\sysmltitle{Accelerated learning through early stopping and re-weighting}
+\sysmltitle{Tell me something new \\ {\large a new appoach to parallel
+  learning and its application to boosting}}
 
 % It is OKAY to include author information, even for blind
 % submissions: the style file will automatically remove it for you
@@ -130,26 +131,25 @@ La Jolla, CA, USA}
 \vskip 0.3in
 
 \begin{abstract}
-In this paper we present several methods for reducing the I/O
-and communication requirements of parallelized tree boosting.
+  {\bf Rewrite abstract}
+  
+This paper presents several methods for reducing the I/O
+and communication requirements of parallelized boosting.
 
 The inner loop of the tree boosting algorithm is a search for
-splitting rules. This search is guided by estimates of the purity
-function. Traditionally, these estimates are based on {\em all
-  available data}. Our first observation is that, when the training
-data is large, it is sometimes sufficent to compute an estimate based
-on just a small fraction of the data. This results in a reduce memory
-footprint and faster execution.
+splitting rules. This search is driven by estimates of expected loss.
+ Traditionally, these estimates were based on {\em all
+   available data}. Previous work~\cite{} has shown that early
+ stopping can be used to reduce the amount of data required.
 
-Our second obsrvation regards the parallelization of the search
-process. For this case we propose an asynchronous communication we
-call ``Tell Me Something New'' or \tmsn\. According to this protocol
-the first computer to find a good rule interrupts the search of the
-other machines. We show that this protocol can yield significant
-saving in time when compared to bulk-synchronous parallelism.  It is
-also highly robust to laggards and to computer failure.
-
-We implemented our methods applied the implementation to the
+ In this work we extend the work on early stopping in two ways, both
+ of which further increase the speed of the boosting algorithm. First,
+ we show how early stopping can be used to parallelize the boosting
+ algorithm. Second, we show how memory pressure can be reduced in
+ when the examples have non-uniform weights.
+ 
+We describe these improvement and show their mathematical properties.
+We implemented our methods for boosting and evaluated them on the
 splice-site prediction problem~\cite{sonnenburg_coffin_2010,
   agarwal_reliable_2014}. We compare our performance to that of 
 SparkML~\cite{}
@@ -181,18 +181,5 @@ times faster than the alternatives (fill in when we have details).
 \bibliography{ms}
 \bibliographystyle{sysml2019}
 
-
 \end{document}
 
-
-% This document was modified from the file originally made available by
-% Pat Langley and Andrea Danyluk for ICML-2K. This version was created
-% by Iain Murray in 2018. It was modified from a version from Dan Roy in
-% 2017, which was based on a version from Lise Getoor and Tobias
-% Scheffer, which was slightly modified from the 2010 version by
-% Thorsten Joachims & Johannes Fuernkranz, slightly modified from the
-% 2009 version by Kiri Wagstaff and Sam Roweis's 2008 version, which is
-% slightly modified from Prasad Tadepalli's 2007 version which is a
-% lightly changed version of the previous year's version by Andrew
-% Moore, which was in turn edited from those of Kristian Kersting and
-% Codrina Lauth. Alex Smola contributed to the algorithmic style files.

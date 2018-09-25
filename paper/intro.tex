@@ -1,14 +1,15 @@
 \section{Introduction}\label{sec:intro}
 
-It is well known that I/O is the main bottleneck to the application of
-machine learning algorithms to very large datasets. Improvements to
-date organization on disk, memory and cache for ML algorithms are
-active areas of research.(add refs here).
+A major bottleneck for machine learning from big data is the movement
+of data between storage units. This includes disk, memory and cache
+organization and communication between different computers.
+In this work we describe two new ways to reduce this I/O bottleneck
+and accelerate learning in the context of boosting trees.
 
-Many machine learning algorithms, including XGBoost,
-follow the a similar pattern. At each iteration the complete training
-set is scanned. Then, based on statistics calculated from the training
-set, the model is updated to decrease the loss.
+Many machine learning algorithms, including XGBoost~\cite and
+lightGBM~\cite{}, follow a similar pattern. At each iteration the
+complete training set is scanned. Then, based on statistics calculated
+from the training set, the model is updated to decrease the loss.
 
 Scanning all of the data is obviously optimal from the point of view
 of the statistical estimates. However, the incremental improvemen in
@@ -19,10 +20,13 @@ faster running time.
 
 This idea was introduced by Wald\cite{wald_sequential_1973} in the
 1940s under the title ``Sequential analysis'' (SA). We describe SA
-precisely in Section~\ref{sec:sequential-analysis}. As an illustrative
+precisely in Section~\ref{sec:sequential-analysis}. 
+
+
+As an illustrative
 example, suppose that our goal is to find a classifier from
 $M_1,\ldots,M_k$ whose error rate is close to the minimum across that
-$k$ models. The standard approach is to scan all of the training
+$k$ models. The standard approach is to scan all of the traininqg
 examples, compute the average error of each model, and choose the
 model with the minimal error. The SA approach is to read the examples
 one by one, each time updating the error estimate for each model, and
@@ -30,38 +34,46 @@ emply a specifically designed {\em stopping rule} to decide when to
 stop and which model to output. An example where SA will stop much
 before the standard approach is when one rule has an error rate of
 $0.1$ while all of the other rules have error of $0.5$.
-
-The use of stopping rules in boosting algorithms is not new, it was
-studied before by Domingo and Watanabe~\cite{domingo_scaling_2000} and
+Using stopping rules to accelerate boosting has been studied before 
+by Domingo and Watanabe~\cite{domingo_scaling_2000} and
 by Bradley and Schapire~\cite{bradley_filterboost:_2007}.
 
-Our main contribution in this paper a new parallel boosting algorithm
-that takes advantage of early stopping. Observe that the main
-computation step of the boosting algorithm is the search for a rule
-that is slightly better than random guessing.~\footnote{Often the
-  stated goal is to find the {\em best} weak rule. However, for the
-  theory behind adaboost to hold, any rule whose error is smaller than
-  $1/2$ will do.}
+The first contribution of this paper is a new protocol for
+parallelizing boosting algorithms, based on stopping rules, which we
+call ``tell me something new'' or \tmsn. Most parallelized algorithms,
+including Spark-ML, XGBoost and LightGBM use
+Bulk-Synchronization~\ref{valiant_bridging_1990} (BS). On the other
+hand, \tmsn\ is an asynchronous protocol with a weak notion of common state.
 
-Both XGBoost and LightGBM are based on the
-Bulk-Synchronization~\ref{valiant_bridging_1990} model of parallel
-computation. In this model the workers are all synchronized at the
-start of each boosting iteration. This establishes a well defined {\em
-  common state} at the synchronization boundary which simplifies the
-reasoning about the algorithm an it's interaction with the hardware
-and the OS.
+We now describe \tmsn\ in the context of boosting.
+The main computation step of any boosting algorithm is the search for
+a weak rule that is slightly better than random guessing. Usually, the
+stated goal is to find the {\em best} weak rule. However, for adaboost
+to make progress, {\em any} rule whose error is significantly smaller
+than $1/2$ can be used. This relaxation of the requirement makes it
+possible to use stopping rules.
 
-In our approach, which we call ``tell me something new'' or
-\tmsn\ {\em we do away with both synchronization and common state}.
-
-We first give a rough description of \tmsn\, followed with a more
-refined one. Roughly, each of the worker is streaming over it's local
-data to evaluate the error of a set of weak rules. It uses a stopping
-rule to stop when it identifies a weak rule whose error is smaller
-than $1/2-\gamma$. when this good weak rule has been identified, it
-interrupts the search, adds the found rule to the strong rule, and
-broadcasts this strong rule. The other workers, upon recieving the new
-strong rule, interrupt their own search and use the new rule.
+As the standard goal of boosting algorithms is to find the {\em best
+weak rule} most implementation of boosting algorithms {\em scan all
+of the training data} at each iteration, which becomes very slow
+when the data is large. As mentioned
+above~\cite{domingo_scaling_2000,bradley_filterboost:_2007} proposed
+to use early stopping in the non-parallelized context. The i
+Data paralel and feature paralel
+implementations of boosting~\cite{} accelerate this computation, but
+still require reading each training point.  \tmsn\ parallelization is
+a variant of feature parallelism. As in bulk-synchronous
+feature-parallel boosting, each \tmsn\ worker scans locally stored
+training examples to evaluate the error of a set of weak
+rules. However {\em unlike} bulk-synchronized, only a (typically
+small) fraction of the data is scanned.  The workers all use a
+stopping rule to decide when to terminate the search. The stopping
+rule fires when it identifies a weak rule whose error is (with high
+probability) smaller than $1/2-\gamma$. When this good weak rule has
+been identified, it interrupts the search, adds the found rule to the
+strong rule, and broadcasts this strong rule. The other workers, upon
+recieving the new strong rule, interrupt their own search and use the
+new rule.
 
 This rough version of \tmsn\ would work if the workers were
 synchronized and communication was instantanous. Both are unrealistic
@@ -73,10 +85,22 @@ strong rule, it acccepts it only if the newcomers upper bound is
 smaller than the current upper bound. The full details are in
 section~\ref{sec:}
 
-We call our protocol ``tell me something new'' because the workers
+We call this protocol ``tell me something new'' because the workers
 send out information only when they have ``something new'' which in
 our case means a significantly better strong rule. This protocol has
 several desirable properties:
+
+Both XGBoost and LightGBM 
+Bulk-Synchronization~\ref{valiant_bridging_1990} model of parallel
+computation. In this model the workers are all synchronized at the
+start of each boosting iteration. This establishes a well defined {\em
+  common state} at the synchronization boundary which simplifies the
+reasoning about the algorithm an it's interaction with the hardware
+and the OS.
+
+The main contribution of this p``tell me something new'' or
+\tmsn\ {\em we do away with both synchronization and common state}.
+
 \begin{enumerate}
 \item {\bf No head-node} Most distributed systems rely on a head-node
   that synchronizes the workers. The head node is a
@@ -100,151 +124,15 @@ several desirable properties:
   contributing their cycles to the search.
 \end{enumerate}
 
-\iffalse
-A data structure $M$ defines the model, the
-algorithm compares several alternative models $M_1,\ldots,M_k$. Ideally,
-models should be compared by expected loss, defined as 
-$$\loss(M) = E_{\vx \sim \Dist}(L(M,\vx))$$
-where $\vx$ is an example chosen independently at random according to
-the distribution $\Dist$ and $L(M,\vx)$ is a loss function which associates a
-real number with the application of a model $M$ to the example $\vx$.
-For reasons that will be revealed shortly, we assume that the range of
-$L$ is $[0,1]$.
+The second contribution of this paper is a method to improve the usage
+of main memory when training examples have non-uniform
+weights. Intuitively, when a large fraction of the examples have very
+low weight, they contribute little to the error estimates. We show how
+to quantify the effect of non-uniform weights in general and show how
+selective sampling can increase the accuracy of the estimates. We also
+propose a stopping rule when learning from non-uniform weights.
 
-We refer to the expected loss $\loss(M)$ as the {\em ideal} because in
-order to calculate it we need an infinite number of example. As in
-practice the number of examples is finite, the algorithm has to use an {\em estimate}.
-
-We denote a model by $M$ and a data point by $\vx$. The datapoints are
-generated by a fixed but unknown distribution $\Dist$. A loss function $L$
-assigns a real valued to a model $M$ applied to a datapoint $\vx$:
-$L(M,\vx)$. We restrict our losses to the values $[0,1]$.
-
-The quantity that we wish to estimate is the expected loss with
-respect to the true distribution $\Dist$: $\loss(M) = E_{\vx \sim
-  \Dist}(L(M,\vx))$. We cannot caculate $\loss(M)$, we can only
-{\em estimate} it from our finite traning data: $T = \{ \vx_1, \ldots,
-\vx_n\}$. The most common estimator is the unweighted average:
-$$ \eloss_n(M) = \frac{1}{n} \sum_{i=1}^n L(M,\vx_i)$$
-
-
-
-
-Most of this work ignores a fundamental charasteristic
-of machine learning tasks - the bias-variance tradeoff. Most machine
-learning algorithm consider only the {\em mean} of the loss
-
-On the other hand, computer clock rates are unlikely to increase
-beyond 4\,GHz in the foreseeable future.  As a result there is a keen
-interest in parallelized machine
-learning algorithms~\cite{bekkerman_scaling_2012}.
-
-The most common approach to parallel ML is based on Valiant's bulk
-synchronous~\cite{valiant_bridging_1990} model. This approach calls for a
-set of workers and a master. The system works in (bulk) iterations. In each iteration
-the master sends a task to each worker and then waits for its
-response. Once {\em all} machines responded, the master proceeds to the
-next iteration. Thus the head node enforces synchronization (at the
-iteration level) and maintains
-a state that is shared by all of the workers.
-
-Unfortunately, bulk synchronization does not scale well to more than
-10--20 computers. Network congestion, latencies due to synchronization,
-laggards, and failing computers result in diminishing benefits from
-adding more workers to the
-cluster~\cite{zaharia_apache_2016,mcsherry_scalability!_2015}.
-
-There have been several attempts to break out of the bulk-synchronized
-framework, most notably the work of Recht et~al.\ on
-Hogwild~\cite{recht_hogwild:_2011} and Lian et~al.\ on asynchronous
-stochastic descent~\cite{lian_asynchronous_2015}. Hogwild
-significantly reduces the synchronization penalty by using
-asynchronous updates and parameter servers. The basic idea is to
-decentralize the task of maintaining a global state and relying on
-sparse updates to limit the frequency of update clashes.
-
-\paragraph{Tell Me Something New}
-
-Our first contribution is a new approach for parallelizing ML algorithms
-which eliminates synchronization and the global state and instead uses a
-distributed policy that guarantees progress. We call this approach
-``Tell Me Something New'' (\tmsn). To explain \tmsn\ we start with an
-analogy.
-
-Consider a team of a hundred investigators that is going through
-thousands of documents to build a criminal case where time is of the
-issue. Assume also that most of the documents contain little or no new
-information. How should the investigators communicate their findings
-with each other? We contrast the bulk-synchronous (BS) approach and the
-\tmsn\ approach. In the BS approach, each investigator takes a stack
-of documents to their cubicle and reads through it. Then all of the
-investigator meet in a room and tell each other what they found. Once
-they are done, the process repeats. One problem with this approach is
-that the fast readers have to wait for the slow readers. Another is
-that a decision needs to be made as to how many documents or pages, to
-put in each stack. Too many and the iterations would be very slow, too
-few and all of the time would be spent in meetings.
-
-The \tmsn\ approach is radically different. In this approach, each
-investigator gets documents independently according to their speed of
-reading and work habits. There is no meeting either. Instead, when
-an investigator finds a piece of information that she believes is new,
-she stands up in her cubicle and tells all of the other workers about
-it. This has several advantages: nobody is ever waiting for anybody
-else; the new information is broadcasted as soon as it is available, and
-the system is fault resilient --- somebody falling asleep has little
-effect on the others.
-The analogy to parallel ML maps investigators
-to computers, ``case'' to ``model'', and ``new information'' to
-``improved model''.
-
-%\iffalse
-Consider a team of investigators that is going through
-thousands of documents to build a criminal case. Assume also that most
-of the documents contain no new information. It makes little sense for
-them to send each other a summary of each document they read, they
-would just be wasting each other's time that way. What would make more
-sense is for each to sit reading in their cubicle until one of them
-identifies a document with new information, that person than stands
-up, interrupts all of the other people, and gives each of them a
-summary of what they found. This ensures that all of the investigators
-are updated as soon as new information is available, but are otherwise
-left to do their work.
-%\fi
-
-More concretely, \tmsn\ for model learning works as follows. Each
-worker has a model $H$ and an upper bound $L$ on the true loss of
-$H$. The worker searches for a better model $H'$ whose loss upper
-bound is $L'$. If $L'$ is significantly smaller than $L$, then the
-worker takes two actions. First, $H',L'$ replaces $H,L$. Second
-$(H',L')$ is broadcast to all other workers.  Each worker also listens
-to the broadcast channel. If it receives pair $(H',L')$ it checks
-whether $L'$ is significantly lower than its own upper bound $L$. If
-it is, the worker replaces $(H,L)$ with $(H',L')$. Otherwise, the worker discards the
-pair.
-
-\paragraph{Boosting trees using TMSN}
-Our second contribution is an application of \tmsn\ to boosted
-decision trees. Boosted trees is a highly effective and widely used
-machine learning method. In recent years there have been several
-implementations of boosting that greatly improve over previous
-implementations in terms of running time, in particular,
-XGBoost~\cite{chen_xgboost:_2016} and
-LightGBM~\cite{ke_lightgbm:_2017}. These implementations scale up to
-training sets of many millions, or even billions of training examples.
-Both implementations can run in one of two configurations: a
-memory-only configuration where all of the training data is stored in
-main memory, and a memory and disk configuration where the data is on
-disk and is copied into memory when needed. The memory-only version is
-significantly faster, but require a machine with very large
-memory.
-
-We present an implementation of boosting tree learning using
-\tmsn\ that we call \Sparrow. This is a disk and memory
-implementation, which requires only a fraction of the training data to
-be stored in memory.  Yet, as our comparative experiments show, it is
-about 10 times faster than XGBoost and LightGBM using the {\em memory
-  only} configuration.
+The rest of the paper is organized as follows.
 
 The rest of the paper is divided into four sections.
 First we give a general description of \tmsn\ in Section~\ref{sec:tmsn}.
@@ -252,4 +140,4 @@ Then we introduce a special application of our algorithm, namely \Sparrow, in Se
 After that we describe in more details of the algorithms and the system design of \Sparrow\ in
 Section~\ref{sec:Algorithms}.
 Finally, we present empirical results in Section~\ref{sec:experiments}.
-\fi
+

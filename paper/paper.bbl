@@ -1,0 +1,141 @@
+\begin{thebibliography}{14}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Agarwal et~al.(2014)Agarwal, Chapelle, Dudík, and
+  Langford]{agarwal_reliable_2014}
+Agarwal, A., Chapelle, O., Dudík, M., and Langford, J.
+\newblock A {Reliable} {Effective} {Terascale} {Linear} {Learning} {System}.
+\newblock \emph{Journal of Machine Learning Research}, 15:\penalty0 1111--1133,
+  2014.
+\newblock URL \url{http://jmlr.org/papers/v15/agarwal14a.html}.
+
+\bibitem[Balsubramani(2014)]{balsubramani_sharp_2014}
+Balsubramani, A.
+\newblock Sharp {Finite}-{Time} {Iterated}-{Logarithm} {Martingale}
+  {Concentration}.
+\newblock \emph{arXiv:1405.2639 [cs, math, stat]}, May 2014.
+\newblock URL \url{http://arxiv.org/abs/1405.2639}.
+\newblock arXiv: 1405.2639.
+
+\bibitem[Bradley \& Schapire(2007)Bradley and
+  Schapire]{bradley_filterboost:_2007}
+Bradley, J.~K. and Schapire, R.~E.
+\newblock {FilterBoost}: {Regression} and {Classification} on {Large}
+  {Datasets}.
+\newblock In \emph{Proceedings of the 20th {International} {Conference} on
+  {Neural} {Information} {Processing} {Systems}}, {NIPS}'07, pp.\  185--192,
+  USA, 2007. Curran Associates Inc.
+\newblock ISBN 978-1-60560-352-0.
+\newblock URL \url{http://dl.acm.org/citation.cfm?id=2981562.2981586}.
+
+\bibitem[Caragea et~al.(2004)Caragea, Silvescu, and
+  Honavar]{caragea_framework_2004}
+Caragea, D., Silvescu, A., and Honavar, V.
+\newblock A {Framework} for {Learning} from {Distributed} {Data} {Using}
+  {Sufficient} {Statistics} and {Its} {Application} to {Learning} {Decision}
+  {Trees}.
+\newblock \emph{International Journal of Hybrid Intelligent Systems},
+  1\penalty0 (1-2):\penalty0 80--89, January 2004.
+\newblock ISSN 1448-5869.
+\newblock \doi{10.3233/HIS-2004-11-210}.
+\newblock URL
+  \url{https://content.iospress.com/articles/international-journal-of-hybrid-intelligent-systems/his010}.
+
+\bibitem[Chen \& Guestrin(2016)Chen and Guestrin]{chen_xgboost:_2016}
+Chen, T. and Guestrin, C.
+\newblock {XGBoost}: {A} {Scalable} {Tree} {Boosting} {System}.
+\newblock In \emph{Proceedings of the 22Nd {ACM} {SIGKDD} {International}
+  {Conference} on {Knowledge} {Discovery} and {Data} {Mining}}, {KDD} '16, pp.\
+   785--794, New York, NY, USA, 2016. ACM.
+\newblock ISBN 978-1-4503-4232-2.
+\newblock \doi{10.1145/2939672.2939785}.
+\newblock URL \url{http://doi.acm.org/10.1145/2939672.2939785}.
+
+\bibitem[Domingo \& Watanabe(2000)Domingo and Watanabe]{domingo_scaling_2000}
+Domingo, C. and Watanabe, O.
+\newblock Scaling {Up} a {Boosting}-{Based} {Learner} via {Adaptive}
+  {Sampling}.
+\newblock In \emph{Knowledge {Discovery} and {Data} {Mining}. {Current}
+  {Issues} and {New} {Applications}}, Lecture {Notes} in {Computer} {Science},
+  pp.\  317--328. Springer, Berlin, Heidelberg, April 2000.
+\newblock ISBN 978-3-540-67382-8 978-3-540-45571-4.
+\newblock \doi{10.1007/3-540-45571-X_37}.
+\newblock URL \url{https://link.springer.com/chapter/10.1007/3-540-45571-X_37}.
+
+\bibitem[Hoeffding(1963)]{hoeffding_probability_1963}
+Hoeffding, W.
+\newblock Probability {Inequalities} for {Sums} of {Bounded} {Random}
+  {Variables}.
+\newblock \emph{Journal of the American Statistical Association}, 58\penalty0
+  (301):\penalty0 13--30, 1963.
+\newblock ISSN 0162-1459.
+\newblock \doi{10.2307/2282952}.
+\newblock URL \url{http://www.jstor.org/stable/2282952}.
+
+\bibitem[Ke et~al.(2017)Ke, Meng, Finley, Wang, Chen, Ma, Ye, and
+  Liu]{ke_lightgbm:_2017}
+Ke, G., Meng, Q., Finley, T., Wang, T., Chen, W., Ma, W., Ye, Q., and Liu,
+  T.-Y.
+\newblock {LightGBM}: {A} {Highly} {Efficient} {Gradient} {Boosting} {Decision}
+  {Tree}.
+\newblock In Guyon, I., Luxburg, U.~V., Bengio, S., Wallach, H., Fergus, R.,
+  Vishwanathan, S., and Garnett, R. (eds.), \emph{Advances in {Neural}
+  {Information} {Processing} {Systems} 30}, pp.\  3146--3154. Curran
+  Associates, Inc., 2017.
+\newblock URL
+  \url{http://papers.nips.cc/paper/6907-lightgbm-a-highly-efficient-gradient-boosting-decision-tree.pdf}.
+
+\bibitem[Kitagawa(1996)]{kitagawa_monte_1996}
+Kitagawa, G.
+\newblock Monte {Carlo} {Filter} and {Smoother} for {Non}-{Gaussian}
+  {Nonlinear} {State} {Space} {Models}.
+\newblock \emph{Journal of Computational and Graphical Statistics}, 5\penalty0
+  (1):\penalty0 1--25, 1996.
+\newblock \doi{10.1080/10618600.1996.10474692}.
+\newblock URL
+  \url{https://www.tandfonline.com/doi/abs/10.1080/10618600.1996.10474692}.
+
+\bibitem[Mason et~al.(1999)Mason, Baxter, Bartlett, and
+  Frean]{mason_boosting_1999}
+Mason, L., Baxter, J., Bartlett, P., and Frean, M.
+\newblock Boosting {Algorithms} {As} {Gradient} {Descent}.
+\newblock In \emph{Proceedings of the 12th {International} {Conference} on
+  {Neural} {Information} {Processing} {Systems}}, {NIPS}'99, pp.\  512--518,
+  Cambridge, MA, USA, 1999. MIT Press.
+\newblock URL \url{http://dl.acm.org/citation.cfm?id=3009657.3009730}.
+
+\bibitem[Owen(2013)]{owen_monte_2013}
+Owen, A.~B.
+\newblock \emph{Monte {Carlo} {Theory}, {Methods} and {Examples}}.
+\newblock 2013.
+\newblock URL \url{http://statweb.stanford.edu/~owen/mc/}.
+
+\bibitem[Schapire \& Freund(2012)Schapire and Freund]{schapire_boosting:_2012}
+Schapire, R.~E. and Freund, Y.
+\newblock \emph{Boosting: {Foundations} and {Algorithms}}.
+\newblock MIT Press, 2012.
+\newblock ISBN 978-0-262-01718-3.
+\newblock Google-Books-ID: blSReLACtToC.
+
+\bibitem[Sonnenburg \& Franc(2010)Sonnenburg and
+  Franc]{sonnenburg_coffin:_2010}
+Sonnenburg, S. and Franc, V.
+\newblock {COFFIN}: {A} {Computational} {Framework} for {Linear} {SVMs}.
+\newblock In \emph{Proceedings of the 27th {International} {Conference} on
+  {International} {Conference} on {Machine} {Learning}}, {ICML}'10, pp.\
+  999--1006, USA, 2010. Omnipress.
+\newblock ISBN 978-1-60558-907-7.
+\newblock URL \url{http://dl.acm.org/citation.cfm?id=3104322.3104449}.
+
+\bibitem[Wald(1973)]{wald_sequential_1973}
+Wald, A.
+\newblock \emph{Sequential {Analysis}}.
+\newblock Courier Corporation, 1973.
+\newblock ISBN 978-0-486-61579-0.
+\newblock Google-Books-ID: zXqPAQAAQBAJ.
+
+\end{thebibliography}
