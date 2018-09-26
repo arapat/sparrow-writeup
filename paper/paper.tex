@@ -92,8 +92,7 @@
 \begin{document}
 
 \twocolumn[
-\sysmltitle{Tell me something new \\ {\large a new appoach to parallel
-  learning and its application to boosting}}
+\sysmltitle{Accelerating boosting through early stopping and reweighting}
 
 % It is OKAY to include author information, even for blind
 % submissions: the style file will automatically remove it for you
@@ -127,37 +126,33 @@ La Jolla, CA, USA}
 % find helpful for describing your paper; these are used to populate
 % the "keywords" metadata in the PDF but will not be shown in the document
 % \sysmlkeywords{Machine Learning, SysML}
-
+]
 \vskip 0.3in
 
 \begin{abstract}
-  {\bf Rewrite abstract}
-  
-This paper presents several methods for reducing the I/O
-and communication requirements of parallelized boosting.
+We present three methods for accelerating boosting: early stopping,
+weighted sampling and an asynchronous parallel algorithm we call ``tell
+me something new''(\tmsn). Early stopping and weighted sampling are methods
+for reducing the memory footprint of the boosting algorithm while
+keeping the variance of the error estimates constant.
 
-The inner loop of the tree boosting algorithm is a search for
-splitting rules. This search is driven by estimates of expected loss.
- Traditionally, these estimates were based on {\em all
-   available data}. Previous work~\cite{} has shown that early
- stopping can be used to reduce the amount of data required.
+\tmsn\ is a asynchronous parallel computation protocol in which each
+worker broadcasts a weak rule as soon as it find it, without waiting
+for any synchronization.
 
- In this work we extend the work on early stopping in two ways, both
- of which further increase the speed of the boosting algorithm. First,
- we show how early stopping can be used to parallelize the boosting
- algorithm. Second, we show how memory pressure can be reduced in
- when the examples have non-uniform weights.
- 
+We describe the theory behind these methods and the architecture of the
+our implementation. We compare the performance of our software to that
+of XGBoost and LightGBM and show that our software is significantly
+faster, especially when the training set is too large to fit in memory.
 We describe these improvement and show their mathematical properties.
 We implemented our methods for boosting and evaluated them on the
 splice-site prediction problem~\cite{sonnenburg_coffin_2010,
   agarwal_reliable_2014}. We compare our performance to that of 
-SparkML~\cite{}
-XGBoost~\cite{chen_xgboost:_2016},
-LightGBM~\cite{ke_lightgbm:_2017}. Our implementation is about ten
-times faster than the alternatives (fill in when we have details).
+SparkML~\cite{} XGBoost~\cite{chen_xgboost:_2016},
+LightGBM~\cite{ke_lightgbm:_2017}. Our results show that our method is
+significantly faster when the training set is too large to fir in memory.
 \end{abstract}
-]
+
 
 % this must go after the closing bracket ] following \twocolumn[ ...
 
@@ -170,13 +165,11 @@ times faster than the alternatives (fill in when we have details).
 %\printAffiliationsAndNotice{}  % leave blank if no need to mention equal contribution
 \printAffiliationsAndNotice{\sysmlEqualContribution} % otherwise use the standard text.
 
-
 \input{intro}
-\input{tmsn}
+%\input{tmsn}
 \input{theory}
 \input{algorithms}
 \input{experiments}
-
 
 \bibliography{ms}
 \bibliographystyle{sysml2019}

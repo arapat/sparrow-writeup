@@ -1,42 +1,108 @@
 \section{Introduction}\label{sec:intro}
 
-A major bottleneck for machine learning from big data is the movement
-of data between storage units. This includes disk, memory and cache
-organization and communication between different computers.
-In this work we describe two new ways to reduce this I/O bottleneck
-and accelerate learning in the context of boosting trees.
+A major bottleneck for machine learning from big data is the transfer
+of the training data up the memory hierarchy from disk, through main memory
+and the caches to the CPU cores. This problem is particularly hard
+when the training data does not fit in memory.
 
-Many machine learning algorithms, including XGBoost~\cite and
-lightGBM~\cite{}, follow a similar pattern. At each iteration the
-complete training set is scanned. Then, based on statistics calculated
-from the training set, the model is updated to decrease the loss.
+One solution to this problem, used in SGD, is to use a streaming
+algorithm which updates the model parameters after each
+example. Even though each update step is noisy, averaging using a
+small learning rate smoothes out the update trajectory.
 
-Scanning all of the data is obviously optimal from the point of view
-of the statistical estimates. However, the incremental improvemen in
-the model, given an increase from a fracton of the data to the full
-data, might be small. If it is sufficiently small, then stopping early
-and proceeding to the next iteration can result in significantly
-faster running time.
+Algorithms such as decision trees and boosting update the classifier
+only infrequently. But each update is very likely to reduce the true
+error of the classifier. In most implementations of these algorithms
+the whole training set is scanned at each iteration. This can take a
+long time. An alternative is to read into memory as many training
+examples as possible and then treat that set as the training set. This
+is much faster, but limiting the size of the training set can lead to
+overfitting.
+
+In this paper we describe a third approach where memory is replenished
+with new samples regularly, reducing I/O load while keeping the
+algorithm from overfitting.
+
+Two statistical methods are combined to achieve this result: early
+stopping and weighted sampling.
 
 This idea was introduced by Wald\cite{wald_sequential_1973} in the
 1940s under the title ``Sequential analysis'' (SA). We describe SA
-precisely in Section~\ref{sec:sequential-analysis}. 
-
-
-As an illustrative
-example, suppose that our goal is to find a classifier from
-$M_1,\ldots,M_k$ whose error rate is close to the minimum across that
-$k$ models. The standard approach is to scan all of the traininqg
-examples, compute the average error of each model, and choose the
-model with the minimal error. The SA approach is to read the examples
-one by one, each time updating the error estimate for each model, and
-emply a specifically designed {\em stopping rule} to decide when to
-stop and which model to output. An example where SA will stop much
-before the standard approach is when one rule has an error rate of
-$0.1$ while all of the other rules have error of $0.5$.
-Using stopping rules to accelerate boosting has been studied before 
+precisely in Section~\ref{sec:sequential-analysis}. Here we give a
+short illustration. Suppose we want to estimate the expected loss of a
+model. In the standard large deviation analysis we assume that the
+loss is bounded in some range, say $[-M,+M]$ and that the size of the
+training set is $n$. This imples that the standard deviation of the
+training loss is at most $M/\sqrt{n}$. In order that this standard
+deviaton is smaller than some $\epsilon>0$ we need that $n >
+(M/\epsilon)^2$. While this analysis is optimal in the worst case, it
+can be improved if we have additional information about the standard
+deviation. We can glean such information from the observed losses by
+using the following sequential analysis method. Instead of choosing
+$n$ ahead of time, the algorithm computes the loss of one example at a
+time. A {\em stopping rule} is used to decide whether, conditioned on
+the sequence of losses seen so far, there is very small probability
+that the difference between the average loss and the true loss is
+larger than $\epsilon>0$. The result is that when the standard
+deviation is significantly smaller than $M$ the number of examples
+that need to be used in the estimate is much smaller than
+$n=(M/\epsilon)^2$.
+Using stopping rules to accelerate boosting has been suggested before 
 by Domingo and Watanabe~\cite{domingo_scaling_2000} and
 by Bradley and Schapire~\cite{bradley_filterboost:_2007}.
+
+There are two main ways of using the example weights in boosting:
+\begin{itemize}
+\item {\bf Boosting by filtering}: Examples arrive in a stream and are
+  selected with probability proportional to their weight. The weighted
+  training error is calculated using an {\em unweighted average} over
+  the selected examples.
+\item {\bf Boosting by weighting}: Examples are stored in memory,
+  along with their weight. The weighted training error is calculated
+  by taking the weighted average over all of the examples.
+\end{itemize}
+The algorithm described
+in~\cite{domingo_scaling_2000,bradley_filterboost:_2007} are both
+based on {\em boosting by filtering}. This means that only one example
+needs to be stored in memory at any time. That extremely small memory
+footprint comes at the cost of under-utilizing the memory and putting
+undue burdeon on disk-to-memory communication.
+
+Our approach is to improve memory utilization by combining boosting by
+filtering and boosting be weighting. \Sparrow\ periodically samples
+batches on examples using boosting-by-filtering. It then performs several
+boosting-by-weighting iterations using the memory-resident batch.
+
+The weights of the memory resident batch are initially uniform. These
+weights change into non-uniform weights as boosting-by-weighting
+progresses. This decreases the ``effective size'' of the batch. In
+~\section{} we show that a good measure of the effective size of a
+set of examples with weights $w_1,\ldots,w_n$ is $(\sum_i w_i)^2 /
+(\sum_i w_i^2)$. Having a small effective size implies a large error
+in the estimates of the weighted error. When the effective size falls
+below a set thresholds, the batch is discarded and a new batch is
+filtered to replace it. The new batch will always have effective size
+$n$. By reusing the data in memory and sampling a new batch only when
+needed \Sparrow\ achieves significantly faster performance than
+other algorithm.
+
+Additional speedup is achieve by using a stopping rule when
+running boosting on the memory-resident batch. This stopping rule is
+similar to the stopping rules
+used~\cite{domingo_scaling_2000,bradley_filterboost:_2007} with the
+additional refinement that it takes in weights and the effective
+sample size into account. We describe this stopping rule in Section~\ref{}.
+
+The rest of the paper is organized as follows. In Section~\cite{} we
+describe the mathematical tools used to design of \Sparrow\. In
+Section~\ref{} we describe \Sparrow\. In Section~\ref{} we describe
+the experiments comparing \Sparrow\ to XGBoost and LightGBM. We
+conclude in Section~\ref{sec:Conclusion} with some conclusions and
+future work.
+
+\iffalse
+by explaining the
+mathematical techniques used in our approach. We then 
 
 The first contribution of this paper is a new protocol for
 parallelizing boosting algorithms, based on stopping rules, which we
@@ -141,3 +207,4 @@ After that we describe in more details of the algorithms and the system design o
 Section~\ref{sec:Algorithms}.
 Finally, we present empirical results in Section~\ref{sec:experiments}.
 
+\fi
