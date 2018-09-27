@@ -1,34 +1,81 @@
 \section{Introduction}\label{sec:intro}
+A major bottleneck for learning algorithms that use big data is the
+transfer of the training data up the memory hierarchy from disk,
+through main memory and the caches to the CPU cores. This probem
+becomes severe when the training data does not fit in main memory and
+examples have to be processed multiple times.
 
-A major bottleneck for machine learning from big data is the transfer
-of the training data up the memory hierarchy from disk, through main memory
-and the caches to the CPU cores. This problem is particularly hard
-when the training data does not fit in memory.
+The leading implementations of boosted trees: XGBoost~\cite{chen_xgboost:_2016} and
+LightGBM~\cite{\ke_lightgbm:_2017} suffer from this problem. LightGBM
+will not run if memory is not sufficiently large to hold all of the
+training data. XGBoost will run in that case, but is very slow.
 
-One solution to this problem, used in SGD, is to use a streaming
-algorithm which updates the model parameters after each
-example. Even though each update step is noisy, averaging using a
-small learning rate smoothes out the update trajectory.
+The main contribution of this paper is a boosting tree algorithm we
+call \Sparrow, which runs much faster than XGBoost and LightGBM,
+especially when memory is too small to store all of the training data.
 
-Algorithms such as decision trees and boosting update the classifier
-only infrequently. But each update is very likely to reduce the true
-error of the classifier. In most implementations of these algorithms
-the whole training set is scanned at each iteration. This can take a
-long time. An alternative is to read into memory as many training
-examples as possible and then treat that set as the training set. This
-is much faster, but limiting the size of the training set can lead to
-overfitting.
+Our initial implementation, presented here, is for the special case of
+boosting ``stumps'', i.e. trees of depth one. Plans for extending the
+work to full-size trees are described at the end of the paper.
 
-In this paper we describe a third approach where memory is replenished
-with new samples regularly, reducing I/O load while keeping the
-algorithm from overfitting.
+A trivial way to deal with the problem of limited memory is to read
+into memory as much data as would fit, and learn only from that data.
+The problem with that approach is increased over-fitting. One approach
+to this problem is presented in random-forests~\cite{},
+where trees are trained on separate subsets of the data and then
+combined by a majority vote. Random forests significantly reduce the
+variance of the trees, but they do not decrease the bias. Boosting can
+reduce the variance as well as the bias~\cite{Boosting-the-margin}. We
+therefor want a memory-efficient version of boosting.
 
-Two statistical methods are combined to achieve this result:
-sequential analysis and weighted sampling.
+\Sparrow\ is based on three ideas from statistics: {\em early stopping},
+the {\em effective} number of examples and {\em weighted
+  sampling}. Each of these ideas appears in the literature, but their
+combination into an algorithm is new. We now describe how these three
+ideas are combined.
 
-Using sequential to accelerate boosting has been suggested before 
-by Domingo and Watanabe~\cite{domingo_scaling_2000} and
-by Bradley and Schapire~\cite{bradley_filterboost:_2007}.
+At a high level, \Sparrow\ works as follows. It repeatedly draws
+weighted samples from disk into memory. Each sample is
+used for multiple boosting iterations. As boosting progresses the
+weights of the examples become increasingly skewed. A skewed sample is
+effectively smaller. Examples with very small weight are essentially a
+waste of memory space. We quantify this by a quantity we call ``the
+effective number of examples'. When the  ``the effective number
+of examples'' decreases below a threshold \Sparrow\ flushes the sample
+and selects a new sample. The new sample have uniform weights and
+therefor the effective sample size is equal to the size of the sample.
+
+As for reading examples from memory into the CPU, {\em early stopping}
+is used to stop the reading of examples as soon as a good enough weak
+rule has been identified.
+
+We implemented \Sparrow\ using the Rust programming language. We
+compared it's performace to the performance of XGBoost and LightGBM on
+50 Million examples (the human acceptor splice site
+dataset~\cite{sonnenburg_coffin:_2010, agarwal_reliable_2014}). We
+show that on a 16GB machine \Sparrow is about 200 times faster than
+XGBoost. On 144GB machine all of the data can be loaded into memory
+and the performance is .....
+
+The rest of the paper is organized as follows. In Section~\cite{} we
+describe the statistical tools used in the design of \Sparrow\. In
+Section~\ref{} we describe \Sparrow\. In Section~\ref{} we describe
+the experiments comparing \Sparrow\ to XGBoost and LightGBM. We
+conclude in Section~\ref{sec:Conclusion} with some conclusions and
+future work.
+
+\section{related work}
+
+The use of stopping rules to accelerate boosting has been stedied 
+before by Domingo and Watanabe~\cite{domingo_scaling_2000} and by
+Bradley and Schapire~\cite{bradley_filterboost:_2007}.
+
+Our work here is based on the original formulation of
+boosting~\cite{original, confidence-rated-boosting, adtrees, Book}.
+XGBoost and LightGBM are based on an alternative formulation of
+boosting propsed by Freedman Hastie and Tibshirani~\cite{}.
+
+\iffalse
 
 There are two main ways of using the example weights in boosting:
 \begin{itemize}
@@ -71,119 +118,4 @@ similar to the stopping rules
 used~\cite{domingo_scaling_2000,bradley_filterboost:_2007} with the
 additional refinement that it takes in weights and the effective
 sample size into account. We describe this stopping rule in Section~\ref{}.
-
-The rest of the paper is organized as follows. In Section~\cite{} we
-describe the mathematical tools used to design of \Sparrow\. In
-Section~\ref{} we describe \Sparrow\. In Section~\ref{} we describe
-the experiments comparing \Sparrow\ to XGBoost and LightGBM. We
-conclude in Section~\ref{sec:Conclusion} with some conclusions and
-future work.
-
-\iffalse
-by explaining the
-mathematical techniques used in our approach. We then 
-
-The first contribution of this paper is a new protocol for
-parallelizing boosting algorithms, based on stopping rules, which we
-call ``tell me something new'' or \tmsn. Most parallelized algorithms,
-including Spark-ML, XGBoost and LightGBM use
-Bulk-Synchronization~\ref{valiant_bridging_1990} (BS). On the other
-hand, \tmsn\ is an asynchronous protocol with a weak notion of common state.
-
-We now describe \tmsn\ in the context of boosting.
-The main computation step of any boosting algorithm is the search for
-a weak rule that is slightly better than random guessing. Usually, the
-stated goal is to find the {\em best} weak rule. However, for adaboost
-to make progress, {\em any} rule whose error is significantly smaller
-than $1/2$ can be used. This relaxation of the requirement makes it
-possible to use stopping rules.
-
-As the standard goal of boosting algorithms is to find the {\em best
-weak rule} most implementation of boosting algorithms {\em scan all
-of the training data} at each iteration, which becomes very slow
-when the data is large. As mentioned
-above~\cite{domingo_scaling_2000,bradley_filterboost:_2007} proposed
-to use early stopping in the non-parallelized context. The i
-Data paralel and feature paralel
-implementations of boosting~\cite{} accelerate this computation, but
-still require reading each training point.  \tmsn\ parallelization is
-a variant of feature parallelism. As in bulk-synchronous
-feature-parallel boosting, each \tmsn\ worker scans locally stored
-training examples to evaluate the error of a set of weak
-rules. However {\em unlike} bulk-synchronized, only a (typically
-small) fraction of the data is scanned.  The workers all use a
-stopping rule to decide when to terminate the search. The stopping
-rule fires when it identifies a weak rule whose error is (with high
-probability) smaller than $1/2-\gamma$. When this good weak rule has
-been identified, it interrupts the search, adds the found rule to the
-strong rule, and broadcasts this strong rule. The other workers, upon
-recieving the new strong rule, interrupt their own search and use the
-new rule.
-
-This rough version of \tmsn\ would work if the workers were
-synchronized and communication was instantanous. Both are unrealistic
-assumptions. To remove the need for these assumptions we add a {\em
-  global measure of progress}, which is an upper bound on the expected
-loss of the strong hypothesis. When a worker broadcasts a new strong
-rule, it pairs it with this upper bound. When a worker recieves a
-strong rule, it acccepts it only if the newcomers upper bound is
-smaller than the current upper bound. The full details are in
-section~\ref{sec:}
-
-We call this protocol ``tell me something new'' because the workers
-send out information only when they have ``something new'' which in
-our case means a significantly better strong rule. This protocol has
-several desirable properties:
-
-Both XGBoost and LightGBM 
-Bulk-Synchronization~\ref{valiant_bridging_1990} model of parallel
-computation. In this model the workers are all synchronized at the
-start of each boosting iteration. This establishes a well defined {\em
-  common state} at the synchronization boundary which simplifies the
-reasoning about the algorithm an it's interaction with the hardware
-and the OS.
-
-The main contribution of this p``tell me something new'' or
-\tmsn\ {\em we do away with both synchronization and common state}.
-
-\begin{enumerate}
-\item {\bf No head-node} Most distributed systems rely on a head-node
-  that synchronizes the workers. The head node is a
-  single-point-of-failure and a bottleneck, especially systems with a
-  large number of workers. \tmsn\ avoids these problems because it
-  does not require a head-node.
-\item {\bf Reduced communication bandwidth:} In typical bulk-synchronous
-  protocols all workers send and recieve information from the head
-  node at each step. This can mean a lot of communication even when
-  there is little progress in terms of reducing loss. The workers in
-  \tmsn\ remain mute when as long as they don't find anything useful.
-\item {\bf No blocking} The communication operations are all
-  non-blocking, in other words, at no point does a worker wait for a
-  response from another worker. This means that CPU utilzation is not
-  reduce by wait times.
-\item {\bf Robustness} As a result of the fact that there is no
-  synchronization and no head node, they system is very robust. If a
-  single computer is slow or crashes, the effect on the other
-  computers is small. Computers can be removed or added at any time
-  and will quickly catch up to the current best model and start
-  contributing their cycles to the search.
-\end{enumerate}
-
-The second contribution of this paper is a method to improve the usage
-of main memory when training examples have non-uniform
-weights. Intuitively, when a large fraction of the examples have very
-low weight, they contribute little to the error estimates. We show how
-to quantify the effect of non-uniform weights in general and show how
-selective sampling can increase the accuracy of the estimates. We also
-propose a stopping rule when learning from non-uniform weights.
-
-The rest of the paper is organized as follows.
-
-The rest of the paper is divided into four sections.
-First we give a general description of \tmsn\ in Section~\ref{sec:tmsn}.
-Then we introduce a special application of our algorithm, namely \Sparrow, in Section~\ref{sec:boost}.
-After that we describe in more details of the algorithms and the system design of \Sparrow\ in
-Section~\ref{sec:Algorithms}.
-Finally, we present empirical results in Section~\ref{sec:experiments}.
-
 \fi
