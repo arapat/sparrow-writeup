@@ -92,12 +92,14 @@ in~\cite{domingo_scaling_2000,bradley_filterboost:_2007} are both
 based on {\em boosting by filtering}. This means that only one example
 needs to be stored in memory at any time. That extremely small memory
 footprint comes at the cost of under-utilizing the memory and putting
-undue burdeon on disk-to-memory communication.
+undue burden on disk-to-memory communication.
 
 Our approach is to improve memory utilization by combining boosting by
-filtering and boosting be weighting. \Sparrow\ periodically samples
+filtering and boosting by weighting,
+which we call \Sparrow.
+It periodically samples
 batches on examples using boosting-by-filtering. It then performs several
-boosting-by-weighting iterations using the memory-resident batch.
+boosting-by-weighting iterations using the memory-resident batches.
 
 The weights of the memory resident batch are initially uniform. These
 weights change into non-uniform weights as boosting-by-weighting
@@ -109,7 +111,7 @@ in the estimates of the weighted error. When the effective size falls
 below a set thresholds, the batch is discarded and a new batch is
 filtered to replace it. The new batch will always have effective size
 $n$. By reusing the data in memory and sampling a new batch only when
-needed \Sparrow\ achieves significantly faster performance than
+needed, \Sparrow\ achieves significantly faster performance than
 other algorithm.
 
 Additional speedup is achieve by using a stopping rule when

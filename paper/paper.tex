@@ -130,17 +130,18 @@ La Jolla, CA, USA}
 \vskip 0.3in
 
 \begin{abstract}
-We present a new boosting tres algorithm that improves the use of the
+We present a new boosting trees algorithm that improves the use of the
 memory hierarchy over the current best two implementations: XGBoost
 and LightGBM.
   
 We present two methods for accelerating boosting: early stopping, and
-weighted sampling.We describe these improvement and show their
+weighted sampling. We describe these improvement and show their
 mathematical properties.  We implemented our methods for boosting and
 evaluated them on the splice-site prediction
 problem~\cite{sonnenburg_coffin_2010, agarwal_reliable_2014}. We
-compare our performance to that of SparkML~\cite{}
-XGBoost~\cite{chen_xgboost:_2016},
+compare our performance to that of
+% SparkML~\cite{}
+XGBoost~\cite{chen_xgboost:_2016} and
 LightGBM~\cite{ke_lightgbm:_2017}. Our results show that our method is
 significantly faster when the training set is too large to fit in
 main memory.
@@ -163,7 +164,7 @@ main memory.
 \input{algorithms}
 \input{experiments}
 
-\bibliography{ms}
+\bibliography{ms_nourl}
 \bibliographystyle{sysml2019}
 
 \end{document}
