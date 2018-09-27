@@ -16,7 +16,7 @@ memory and by reading just enough data to find a good (rather than the
 best) weak rule. These techniques are based on Sequential Analysis and
 on selective sampling, which we now describe.
 
-\subsection*{Sequential analysis}
+\subsection{Sequential analysis}
 Sequential analysis (SA) was introduced by
 Wald\cite{wald_sequential_1973} in the 1940s.  Here we give a short
 illustration. Suppose we want to estimate the expected loss of a
@@ -38,7 +38,7 @@ deviation is significantly smaller than $M$ the number of examples
 that need to be used in the estimate is much smaller than
 $n=(M/\epsilon)^2$.
 
-\subsection{Sequential Analysis for Boosting}\label{sec:methods:early-stop}
+\subsubsection{Sequential Analysis for Boosting}\label{sec:methods:early-stop}
 
 A small but important observation is that Adaboost does not require
 finding the weak rule with the {\bf smallest} weighted error at each
@@ -70,7 +70,7 @@ data. For reasons that will be explained in the next section, we use a different
  Section~\ref{sec:balsubramani}.
 
 
-\paragraph{Effective Sample Size}
+\subsection{Effective Sample Size}
 \label{sec:effectiveSampleSize}
 Equation~\ref{eqn:gamma_emp} defines $\edgeEmp(h)$, which is an
 estimate of $\edge(h)$. How accurate is this estimate? Our initial
