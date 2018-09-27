@@ -1,11 +1,12 @@
 \section{Theory}
 The analysis given in this section applies to the original boosting
-algorithm~\cite{orig, confidence-rated, adtrees} and to \Sparrow\. It
-does not apply to XGboost~\cite{} or to LightGBM~\cite{} which are are
-both implementations of Gradient-Boosted-Trees~\cite{}, which does not
+algorithm~\cite{freund_decision-theoretic_1997, schapire_improved_1999, freund_alternating_1999}
+and to \Sparrow. It
+does not apply to XGBoost~\cite{chen_xgboost:_2016} or to LightGBM~\cite{ke_lightgbm:_2017} which are
+both implementations of Gradient-Boosted-Trees~\cite{friedman_greedy_2001}, which does not
 lend itself to this type of analysis.
 
-The inner loop of the original Adaboost algorithm is a search for the
+The inner loop of the original AdaBoost algorithm is a search for the
 weak rule with the smallest weighted error. This rule is found by
 computing the weighted error of each weak rule using the whole
 training set. When the training set is large, this scan can take a
@@ -13,18 +14,18 @@ long time.
 
 \Sparrow\ reduces the required time by sampling subsets of the data into
 memory and by reading just enough data to find a good (rather than the
-best) weak rule. These techniques are based on Sequential Analysis and
+best) weak rule. These techniques are based on sequential analysis and
 on selective sampling, which we now describe.
 
 \subsection{Sequential analysis}
 Sequential analysis (SA) was introduced by
-Wald\cite{wald_sequential_1973} in the 1940s.  Here we give a short
+Wald~\cite{wald_sequential_1973} in the 1940s.  Here we give a short
 illustration. Suppose we want to estimate the expected loss of a
 model. In the standard large deviation analysis we assume that the
 loss is bounded in some range, say $[-M,+M]$ and that the size of the
-training set is $n$. This imples that the standard deviation of the
-training loss is at most $M/\sqrt{n}$. In order that this standard
-deviaton is smaller than some $\epsilon>0$ we need that
+training set is $n$. This implies that the standard deviation of the
+training loss is at most $M/\sqrt{n}$. In order to let this standard
+deviation be smaller than some $\epsilon>0$ we need that
 $n > (M/\epsilon)^2$. While this analysis is optimal in the worst case, it
 can be improved if we have additional information about the standard
 deviation. We can glean such information from the observed losses by
@@ -40,13 +41,28 @@ $n=(M/\epsilon)^2$.
 
 \subsubsection{Sequential Analysis for Boosting}\label{sec:methods:early-stop}
 
-A small but important observation is that Adaboost does not require
+(define $\Dist$, $\edge$ and $\edgeEmp$)
+
+Boosting algorithms are iterative.
+At the iteration $T$, they generate a strong rule $H: X \rightarrow Y$
+which is a weighted majority over $T$ weak rules $h \in \W$.
+In this paper, we consider binary classification task.
+We can define the edge of a classifier $h$ as
+
+\begin{equation} \label{eqn:gamma_true}
+\edge(h) \doteq E_{(x,y) \sim \Dist} \left[ w(x,y) y h(x) \right]
+\end{equation}
+where $\Dist$ is the distribution over $X \times Y$,
+and $w(x,y)=\frac{1}{Z} \Dist(x,y) e^{- y H(x)}$.
+
+
+A small but important observation is that AdaBoost does not require
 finding the weak rule with the {\bf smallest} weighted error at each
 iteration. Rather, it is enough to find a rule for which we are sure
 that it has a significant (but not necessarily maximal) advantage over
 random guessing.
 
-(define $\Dist$, $\edge$ and $\edgeEmp$)
+
 More precisely, we want to know that, with high
 probability over the choice of $\training \sim \Dist^n$ the rule $h$
 has a significant {\em true} edge $\edge(h)$.
@@ -109,13 +125,13 @@ argument to arrived at a similar measure of
 the effective samples size for a weighted sample.
 
 The quantity $\neff$ plays a similar role in large deviation bounds
-such as the Hoeffding bound~\cite{hoeffding_probability_1963} (details ommitted).
+such as the Hoeffding bound~\cite{hoeffding_probability_1963} (details omitted).
 It also plays
 a central role in Theorem~\ref{thm:balsubramani} and thus in the
 stopping rule that we use.
 
 To understand the important role that $\neff$ plays in our algorithm,
-supppose the training set is of size $n$ and that only $m \ll n$
+suppose the training set is of size $n$ and that only $m \ll n$
 examples can fit in memory. Our approach is to start by placing a
 random subset of size $m$ into memory and then run multiple
 boosting iterations using this subset. As the strong rule improves,
