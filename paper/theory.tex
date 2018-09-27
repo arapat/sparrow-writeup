@@ -1,113 +1,74 @@
-\section{\tmsn\ for Boosting}
-\begin{figure}[t]
-\begin{center}
-  \includegraphics[width=0.5\textwidth]{figs/AsyncUpdates.pdf}
-\end{center}
-  \caption{{\bf Execution timeline of a \tmsn\ system}
-      System consists of four workers. The first update occurs when
-      worker 3 identifies a better classifier $H_1$. It then replaces
-      $H_0$ with $H_1$ and broadcasts $(H_1,z_1)$ to the
-    other workers. The other workers receive the message the at different
-    times, depending on network congestion. At that time they  interrupt the
-    scanner (yellow explosions) and start using $H_1$. Next, worker 2
-    identifies an improved rule $H_2$ and the same process ensues.
-    \label{fig:async}}
-   	\vspace{0pt}
-%\end{minipage}
-\end{figure}
+\section{Theory}
+The analysis given in this section applies to the original boosting
+algorithm~\cite{orig, confidence-rated, adtrees} and to \Sparrow\. It
+does not apply to XGboost~\cite{} or to LightGBM~\cite{} which are are
+both implementations of Gradient-Boosted-Trees~\cite{}, which does not
+lend itself to this type of analysis.
 
-Next, we describe how \tmsn\ is applied to boosting.  Boosting
-algorithms~\cite{schapire_boosting:_2012} are iterative, they generate
-a sequence of {\em strong rules} of increasing accuracy. The strong
-rule at iteration $T$ is a weighted majority over $T$ of the the weak
-rules in $\cH$.
-$$H_T(x) = \sign \left( \sum_{t=1}^T \alpha_t h_t(x) \right)$$
+The inner loop of the original Adaboost algorithm is a search for the
+weak rule with the smallest weighted error. This rule is found by
+computing the weighted error of each weak rule using the whole
+training set. When the training set is large, this scan can take a
+long time.
 
-For the purpose of \tmsn\ we define $\strongRules$ to be the set of
-strong rules combining any number of weak rules from $\cH$.
+\Sparrow\ reduces the required time by sampling subsets of the data into
+memory and by reading just enough data to find a good (rather than the
+best) weak rule. These techniques are based on Sequential Analysis and
+on selective sampling, which we now describe.
 
-Boosting algorithms can be interpreted as gradient descent
-algorithm~\cite{mason_boosting_1999}. Specifically, if we define the {\em potential} of
-the strong rule $H$ with respect to the training set $\training$ to be
-\[
-\Z(H_T) \doteq \frac{1}{n} \sum_{i=1}^n e^{- y_i H_T(x_i)},
-\]
-then AdaBoost is equivalent to coordinate-wise gradient descent,
-where the coordinates are the elements of $\cH$. Suppose we have the
-strong rule $H$ and consider changing it to $H+\alpha h$ for some $h
-\in \cH$ and for some small $\alpha$. The derivative of the potential
-wrt $\alpha$ is:
-$$
-\left.\frac{\partial}{\partial \alpha}\right|_{\alpha=0} \Z(H+\alpha h) =
-\frac{1}{n} \sum_{i=1}^n \left.\frac{\partial}{\partial \alpha}\right|_{\alpha=0} e^{ - y_i (H(x_i)+\alpha h(x_i))}
-=
-\frac{1}{n} \sum_{i=1}^n -y_i h(x_i) e^{- y_i H(x_i)}
-$$
-Our goal is to minimize the average potential $\Z(H_{T+1})$, therefor our goal is to
-find a weak rule $h$ that makes the gradient negative. Another way of
-expressing this goal is to find a weak rule with a large empirical {\em edge}:
-\begin{equation} \label{eqn:gamma_emp}
-\edgeEmp(h) \doteq  \sum_{i=1}^n w_i y_i h(x_i) \mbox{ where } w_i =
-\frac{1}{Z}e^{- y_i H(x_i)}; Z = \sum_{i=1}^n e^{- y_i H(x_i)}
-\end{equation}
-$w_i$ defines a distribution over the training examples, with respect
-to which we are measuring the correlation between $h(x_i)$ and $y_i$.
-This is the original view of boosting, which is the
-process of finding weak rules with significant edges with respect to
-different distributions. We distinguish between the empirical
-edge $\edgeEmp(h)$, which depends on the sample, and the {\bf true} edge, which
-depends on the underlying distribution:
-\begin{equation} \label{eqn:gamma_emp}
-\edge(h) \doteq E_{(x,y) \sim \Dist}( w(x,y) y h(x)) \mbox{ where }
-w(x,y)=\frac{1}{Z} \Dist(x,y) e^{- y H(x)}
-\end{equation}
-and $Z$ is the normalization factor with respect the the true
-distribution $\Dist$.
+\subsection*{Sequential analysis}
+Sequential analysis (SA) was introduced by
+Wald\cite{wald_sequential_1973} in the 1940s.  Here we give a short
+illustration. Suppose we want to estimate the expected loss of a
+model. In the standard large deviation analysis we assume that the
+loss is bounded in some range, say $[-M,+M]$ and that the size of the
+training set is $n$. This imples that the standard deviation of the
+training loss is at most $M/\sqrt{n}$. In order that this standard
+deviaton is smaller than some $\epsilon>0$ we need that
+$n > (M/\epsilon)^2$. While this analysis is optimal in the worst case, it
+can be improved if we have additional information about the standard
+deviation. We can glean such information from the observed losses by
+using the following sequential analysis method. Instead of choosing
+$n$ ahead of time, the algorithm computes the loss of one example at a
+time. A {\em stopping rule} is used to decide whether, conditioned on
+the sequence of losses seen so far, there is very small probability
+that the difference between the average loss and the true loss is
+larger than $\epsilon>0$. The result is that when the standard
+deviation is significantly smaller than $M$ the number of examples
+that need to be used in the estimate is much smaller than
+$n=(M/\epsilon)^2$.
 
-A small but important observation is that boosting does not require
-finding the weak rule with the {\bf largest} edge at each
+\subsection{Sequential Analysis for Boosting}\label{sec:methods:early-stop}
+
+A small but important observation is that Adaboost does not require
+finding the weak rule with the {\bf smallest} weighted error at each
 iteration. Rather, it is enough to find a rule for which we are sure
-that it has a significant (but not necessarily maximal)
-advantage. More precisely, we want to know that, with high probability
-over the choice of $\training \sim \Dist^n$  the rule $h$ has a significant
-{\em true} edge $\edge(h)$.
+that it has a significant (but not necessarily maximal) advantage over
+random guessing.
 
-\paragraph{Sequential Analysis and Early Stopping}\label{sec:methods:early-stop}
-The standard approach when looking for the best weak rule
-is to compute the error of candidate rules using
-all available data, and then select the rule $h$ that maximizes the empirical
-edge $\edgeEmp(h)$. However, as described above, this can be
-over-kill. Observe that if the true edge $\edge(h)$ is large it can be
-identified as such using a small number of examples.
+(define $\Dist$, $\edge$ and $\edgeEmp$)
+More precisely, we want to know that, with high
+probability over the choice of $\training \sim \Dist^n$ the rule $h$
+has a significant {\em true} edge $\edge(h)$.
 
-Bradley and Schapire~\cite{bradley_filterboost:_2007} and Domingo and
-Watanabe~\cite{domingo_scaling_2000} proposed using early stopping to
-take advantage of such situations. The idea is simple: instead of
-scanning through all of the training examples when searching for the
-next weak rule, a {\em stopping rule} is checked for each $h \in \cH$
-after each training example, and if this stopping rule ``fires'' then
-the scan is terminated and the $h$ that caused the rule to fire is
-added to the strong rule. We use early stopping in our algorithm.
+Domingo and Watanabe~\cite{domingo_scaling_2000} and Bradley and
+Schapire~\cite{bradley_filterboost:_2007} proposed using early
+stopping to take advantage of such situations. The idea is simple:
+instead of scanning through all of the training examples when
+searching for the next weak rule, a {\em stopping rule} is checked for
+each $h \in \cH$ after each training example, and if this stopping
+rule ``fires'' then the scan is terminated and the $h$ that caused the
+rule to fire is added to the strong rule.
 
-For reasons that will be explained in the next section, we use a different
-stopping rule than~\cite{bradley_filterboost:_2007}
-or~\cite{domingo_scaling_2000}. We use a stopping rule proposed
-in~\cite{balsubramani_sharp_2014} for which they prove the following
+{\bf note that if a few rules are good and most are bad, this gives a
+  significant reduction in sample size.}
 
-\begin{theorem}[based on \cite{balsubramani_sharp_2014} Theorem 4] \label{thm:balsubramani}
-  Let $M_t$ be a martingale $M_t = \sum_i^t X_i$,
-  and suppose there are constants $\{c_k\}_{k \geq 1}$ such that
-  for all $i \geq 1$, $|X_i| \leq c_i$ w.p.\ 1.
-  For $\forall \sigma > 0$, with probability at least $1 - \sigma$ we have
-  \[
-  \forall t: |M_t| \leq C \sqrt{
-    \left( \sum_{i=1}^t c_i^2 \right)
-    \left( \log \log \left( \frac{ \sum_{i=1}^t c_i^2 }{ |M_t| }\right) +
-    \log \frac{1}{\sigma} \right)
-  },
-  \]
-  where $C$ is a universal constant.
-\end{theorem}
+\cite{bradley_filterboost:_2007} and~\cite{domingo_scaling_2000}
+define use stopping rules that apply to equally weighted sampled
+data. For reasons that will be explained in the next section, we use a different
+ We use a different stopping rule that will be explained in
+ Section~\ref{sec:balsubramani}.
+
 
 \paragraph{Effective Sample Size}
 \label{sec:effectiveSampleSize}
@@ -177,3 +138,22 @@ make predictions on high-weight difficult examples.
 Another concern is the fraction of the examples that are selected. In
 the method described here the expected fraction is $(\frac{1}{n}
 \sum_{i=1}^n w_i)/(\max_i w_i)$.
+
+\subsection{\Sparrow's stopping rule} \label{sec:balsubramani}
+ stopping rule proposed
+in~\cite{balsubramani_sharp_2014} for which they prove the following
+
+\begin{theorem}[based on \cite{balsubramani_sharp_2014} Theorem 4] \label{thm:balsubramani}
+  Let $M_t$ be a martingale $M_t = \sum_i^t X_i$,
+  and suppose there are constants $\{c_k\}_{k \geq 1}$ such that
+  for all $i \geq 1$, $|X_i| \leq c_i$ w.p.\ 1.
+  For $\forall \sigma > 0$, with probability at least $1 - \sigma$ we have
+  \[
+  \forall t: |M_t| \leq C \sqrt{
+    \left( \sum_{i=1}^t c_i^2 \right)
+    \left( \log \log \left( \frac{ \sum_{i=1}^t c_i^2 }{ |M_t| }\right) +
+    \log \frac{1}{\sigma} \right)
+  },
+  \]
+  where $C$ is a universal constant.
+\end{theorem}

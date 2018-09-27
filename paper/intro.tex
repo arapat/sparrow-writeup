@@ -23,31 +23,10 @@ In this paper we describe a third approach where memory is replenished
 with new samples regularly, reducing I/O load while keeping the
 algorithm from overfitting.
 
-Two statistical methods are combined to achieve this result: early
-stopping and weighted sampling.
+Two statistical methods are combined to achieve this result:
+sequential analysis and weighted sampling.
 
-This idea was introduced by Wald\cite{wald_sequential_1973} in the
-1940s under the title ``Sequential analysis'' (SA). We describe SA
-precisely in Section~\ref{sec:sequential-analysis}. Here we give a
-short illustration. Suppose we want to estimate the expected loss of a
-model. In the standard large deviation analysis we assume that the
-loss is bounded in some range, say $[-M,+M]$ and that the size of the
-training set is $n$. This imples that the standard deviation of the
-training loss is at most $M/\sqrt{n}$. In order that this standard
-deviaton is smaller than some $\epsilon>0$ we need that $n >
-(M/\epsilon)^2$. While this analysis is optimal in the worst case, it
-can be improved if we have additional information about the standard
-deviation. We can glean such information from the observed losses by
-using the following sequential analysis method. Instead of choosing
-$n$ ahead of time, the algorithm computes the loss of one example at a
-time. A {\em stopping rule} is used to decide whether, conditioned on
-the sequence of losses seen so far, there is very small probability
-that the difference between the average loss and the true loss is
-larger than $\epsilon>0$. The result is that when the standard
-deviation is significantly smaller than $M$ the number of examples
-that need to be used in the estimate is much smaller than
-$n=(M/\epsilon)^2$.
-Using stopping rules to accelerate boosting has been suggested before 
+Using sequential to accelerate boosting has been suggested before 
 by Domingo and Watanabe~\cite{domingo_scaling_2000} and
 by Bradley and Schapire~\cite{bradley_filterboost:_2007}.
 
@@ -76,7 +55,7 @@ boosting-by-weighting iterations using the memory-resident batch.
 The weights of the memory resident batch are initially uniform. These
 weights change into non-uniform weights as boosting-by-weighting
 progresses. This decreases the ``effective size'' of the batch. In
-~\section{} we show that a good measure of the effective size of a
+Section~\ref{} we show that a good measure of the effective size of a
 set of examples with weights $w_1,\ldots,w_n$ is $(\sum_i w_i)^2 /
 (\sum_i w_i^2)$. Having a small effective size implies a large error
 in the estimates of the weighted error. When the effective size falls

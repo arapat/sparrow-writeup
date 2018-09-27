@@ -130,29 +130,21 @@ La Jolla, CA, USA}
 \vskip 0.3in
 
 \begin{abstract}
-We present three methods for accelerating boosting: early stopping,
-weighted sampling and an asynchronous parallel algorithm we call ``tell
-me something new''(\tmsn). Early stopping and weighted sampling are methods
-for reducing the memory footprint of the boosting algorithm while
-keeping the variance of the error estimates constant.
-
-\tmsn\ is a asynchronous parallel computation protocol in which each
-worker broadcasts a weak rule as soon as it find it, without waiting
-for any synchronization.
-
-We describe the theory behind these methods and the architecture of the
-our implementation. We compare the performance of our software to that
-of XGBoost and LightGBM and show that our software is significantly
-faster, especially when the training set is too large to fit in memory.
-We describe these improvement and show their mathematical properties.
-We implemented our methods for boosting and evaluated them on the
-splice-site prediction problem~\cite{sonnenburg_coffin_2010,
-  agarwal_reliable_2014}. We compare our performance to that of 
-SparkML~\cite{} XGBoost~\cite{chen_xgboost:_2016},
+We present a new boosting tres algorithm that improves the use of the
+memory hierarchy over the current best two implementations: XGBoost
+and LightGBM.
+  
+We present two methods for accelerating boosting: early stopping, and
+weighted sampling.We describe these improvement and show their
+mathematical properties.  We implemented our methods for boosting and
+evaluated them on the splice-site prediction
+problem~\cite{sonnenburg_coffin_2010, agarwal_reliable_2014}. We
+compare our performance to that of SparkML~\cite{}
+XGBoost~\cite{chen_xgboost:_2016},
 LightGBM~\cite{ke_lightgbm:_2017}. Our results show that our method is
-significantly faster when the training set is too large to fir in memory.
+significantly faster when the training set is too large to fit in
+main memory.
 \end{abstract}
-
 
 % this must go after the closing bracket ] following \twocolumn[ ...
 
