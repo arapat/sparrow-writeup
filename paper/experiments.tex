@@ -4,32 +4,16 @@ In this section we describe the results of experiments comparing
 the run time of \Sparrow\ with those of two leading implementations of
 boosted trees: XGBoost and LightGBM.
 
-\begin{table}[]
-\centering
-\label{table-exp}
-\begin{tabular}{|l|l|c|c|}
-\hline
-Algorithm            & Instance & Instance Memory \iffalse{& Memory Usage}\fi & Training (minutes)  \\ \hline
-XGBoost, in-memory   & \texttt{x1e.xlarge}    & 122 GB          \iffalse{& 105.6 GB}\fi          & 414.6                                  \\
-XGBoost, off-memory  & \texttt{r3.xlarge}     & 30.5 GB         \iffalse{& 3.9 GB}\fi            & 1566.1                                  \\
-LightGBM, in-memory  & \texttt{x1e.xlarge}    & 122 GB          \iffalse{& 41.6 GB}\fi           & 341.6                                  \\
-LightGBM, off-memory & \texttt{r3.xlarge}     & 30.5 GB         \iffalse{& 16.8 GB}\fi           & 449.7                                  \\
-\multirow{2}{*}{TMSN, sample 10\%}    & \multirow{2}{*}{\texttt{c3.xlarge}}     & \multirow{2}{*}{7.5 GB}          \iffalse{& \multirow{2}{*}{3.4 GB}}\fi            & 57.4 (1 worker)      \\
-                     &                        &                                    & 17.7 (10 workers) \\ \hline
-\end{tabular}
-\vspace{0.2cm}
-\caption{Experiments on the Splice Site Detection Task}
-\end{table}
 
 \paragraph{Setup}
 We use a large dataset that was used in other studies of large scale
-learning on detecting human acceptor splice site~\cite{sonnenburg_coffin:_2010, agarwal_reliable_2014}.
+learning on detecting human acceptor splice site~\cite{sonnenburg_coffin_2010, agarwal_reliable_2014}.
 The learning task is binary classification.
 We use the same training dataset of 50\,M samples as in the other work,
 and validate the model on the testing data set of 4.6\,M samples.
 The training dataset on disk takes over 27\,GB in size.
 
-As the code is not fully developed yet, we restrict our trees to one
+In current implementation of \Sparrow, we restrict our trees to one
 level so-called ``decision stumps''. We plan to perform comparisons
 using multi-level trees and more than two labels. We expect similar
 runtime performance there. To generate comparable models,
@@ -38,9 +22,9 @@ we also train decision stumps in XGBoost and LightGBM
 
 Both XGBoost and LightGBM are highly optimized, and support multiple
 tree construction algorithms.
-For XGBoost, we selected approximate greedy algorithm for the efficiency purpose.
+For XGBoost, we chose approximate greedy algorithm which is its fastest method.
 LightGBM supports using sampling in the training,
-which they called \textit{Gradient-based One-Side Sampling (GOSS)}.
+which they called \textit{Gradient-based One-Side Sampling} (GOSS).
 GOSS keeps a fixed percentage of examples with large gradients,
 and then randomly sample from remaining examples with small gradients.
 We selected GOSS as the tree construction algorithm for LightGBM.
@@ -50,9 +34,26 @@ We also evaluated the final model by calculating its area under precision-recall
 curve (AUPRC) on the testing dataset.
 
 Finally, the experiments are all conducted on EC2 instances from Amazon Web Services.
-Since XGBoost requires 106\,GB memory space for training this dataset in memory,
-we used instances with 120\,GB memory for such setting.
-Detailed description of the setup is listed in Table~\ref{table-exp}.
+We ran the evaluations on four different instance types with increasing memory capacities,
+specifically
+16\,GB (\texttt{c5d.2xlarge}), 32\,GB (\texttt{c5d.2xlarge}),
+72\,GB (\texttt{c5d.9xlarge}), and 144\,GB (\texttt{c5d.18xlarge}).
+The training time in each configuration is listed in Table~\ref{table-exp}.
+
+\begin{table}[]
+\centering
+\label{table-exp}
+\begin{tabular}{|l|l|c|c|}
+\hline
+Memory       & \Sparrow         & XGBoost           & LightGBM       \\ \hline
+16 GB        & 15               & 2960 (off memory) & (crash)        \\
+32 GB        & 15               & 1554 (off memory) & (crash)        \\
+72 GB        & 14               &                   & 100            \\
+144 GB       &                  & 227               & 100            \\ \hline
+\end{tabular}
+\vspace{0.2cm}
+\caption{Training time on the Splice Site Detection Task}
+\end{table}
 
 \paragraph{Evaluation}
 Performance of each of the algorithm in terms of
