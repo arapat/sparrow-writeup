@@ -1,4 +1,4 @@
-\begin{thebibliography}{10}
+\begin{thebibliography}{15}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -47,6 +47,35 @@ Domingo, C. and Watanabe, O.
 \newblock ISBN 978-3-540-67382-8 978-3-540-45571-4.
 \newblock \doi{10.1007/3-540-45571-X_37}.
 
+\bibitem[Freund \& Mason(1999)Freund and Mason]{freund_alternating_1999}
+Freund, Y. and Mason, L.
+\newblock The {Alternating} {Decision} {Tree} {Learning} {Algorithm}.
+\newblock In \emph{Proceedings of the {Sixteenth} {International} {Conference}
+  on {Machine} {Learning}}, {ICML} '99, pp.\  124--133, San Francisco, CA, USA,
+  1999. Morgan Kaufmann Publishers Inc.
+\newblock ISBN 978-1-55860-612-8.
+
+\bibitem[Friedman et~al.(2000)Friedman, Hastie, and
+  Tibshirani]{friedman_additive_2000}
+Friedman, J., Hastie, T., and Tibshirani, R.
+\newblock Additive logistic regression: a statistical view of boosting ({With}
+  discussion and a rejoinder by the authors).
+\newblock \emph{The Annals of Statistics}, 28\penalty0 (2):\penalty0 337--407,
+  April 2000.
+\newblock ISSN 0090-5364, 2168-8966.
+\newblock \doi{10.1214/aos/1016218223}.
+\newblock URL \url{https://projecteuclid.org/euclid.aos/1016218223}.
+
+\bibitem[Hastie et~al.(2009)Hastie, Tibshirani, and
+  Friedman]{hastie_elements_2009}
+Hastie, T., Tibshirani, R., and Friedman, J.
+\newblock \emph{The {Elements} of {Statistical} {Learning}: {Data} {Mining},
+  {Inference}, and {Prediction}, {Second} {Edition}}.
+\newblock Springer {Series} in {Statistics}. Springer-Verlag, New York, 2
+  edition, 2009.
+\newblock ISBN 978-0-387-84857-0.
+\newblock URL \url{//www.springer.com/us/book/9780387848570}.
+
 \bibitem[Ke et~al.(2017)Ke, Meng, Finley, Wang, Chen, Ma, Ye, and
   Liu]{ke_lightgbm:_2017}
 Ke, G., Meng, Q., Finley, T., Wang, T., Chen, W., Ma, W., Ye, Q., and Liu,
@@ -71,6 +100,26 @@ Schapire, R.~E. and Freund, Y.
 \newblock \emph{Boosting: {Foundations} and {Algorithms}}.
 \newblock MIT Press, 2012.
 \newblock ISBN 978-0-262-01718-3.
+
+\bibitem[Schapire \& Singer(1999)Schapire and Singer]{schapire_improved_1999}
+Schapire, R.~E. and Singer, Y.
+\newblock Improved {Boosting} {Algorithms} {Using} {Confidence}-rated
+  {Predictions}.
+\newblock \emph{Machine Learning}, 37\penalty0 (3):\penalty0 297--336, December
+  1999.
+\newblock ISSN 1573-0565.
+\newblock \doi{10.1023/A:1007614523901}.
+
+\bibitem[Schapire et~al.(1998)Schapire, Freund, Bartlett, and
+  Lee]{schapire_boosting_1998}
+Schapire, R.~E., Freund, Y., Bartlett, P., and Lee, W.~S.
+\newblock Boosting the margin: a new explanation for the effectiveness of
+  voting methods.
+\newblock \emph{The Annals of Statistics}, 26\penalty0 (5):\penalty0
+  1651--1686, October 1998.
+\newblock ISSN 0090-5364, 2168-8966.
+\newblock \doi{10.1214/aos/1024691352}.
+\newblock URL \url{https://projecteuclid.org/euclid.aos/1024691352}.
 
 \bibitem[Sonnenburg \& Franc(2010)Sonnenburg and Franc]{sonnenburg_coffin_2010}
 Sonnenburg, S. and Franc, V.

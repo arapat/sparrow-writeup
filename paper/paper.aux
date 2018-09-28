@@ -21,16 +21,17 @@
 \citation{ke_lightgbm:_2017}
 \citation{chen_xgboost:_2016}
 \citation{ke_lightgbm:_2017}
-\citation{}
-\citation{Boosting-the-margin}
-\citation{sonnenburg_coffin:_2010,agarwal_reliable_2014}
+\citation{hastie_elements_2009}
+\citation{schapire_boosting_1998}
+\citation{sonnenburg_coffin_2010,agarwal_reliable_2014}
 \newlabel{sec:intro}{{1}{1}{}{section.1}{}}
+\citation{freund_alternating_1999,schapire_improved_1999,freund_alternating_1999,schapire_boosting:_2012}
+\citation{chen_xgboost:_2016}
+\citation{ke_lightgbm:_2017}
+\citation{friedman_additive_2000}
 \citation{domingo_scaling_2000}
 \citation{bradley_filterboost:_2007}
-\citation{original,confidence-rated-boosting,adtrees,Book}
-\citation{}
 \citation{schapire_boosting:_2012}
-\citation{Other potential functions have been studied,in this work we restrict ourselves to the original exponential potential function.}
 \newlabel{sec:theory}{{3}{2}{}{section.3}{}}
 \newlabel{eqn:weights}{{1}{2}{}{equation.3.1}{}}
 \newlabel{eqn:Dt}{{2}{2}{}{equation.3.2}{}}
@@ -38,36 +39,42 @@
 \newlabel{eqn:emp-edge}{{4}{2}{}{equation.3.4}{}}
 \newlabel{sec:effectiveSampleSize}{{3.1}{2}{}{subsection.3.1}{}}
 \newlabel{eqn:variance}{{5}{2}{}{equation.3.5}{}}
-\newlabel{eqn:neff}{{6}{2}{}{equation.3.6}{}}
 \citation{wald_sequential_1973}
 \citation{domingo_scaling_2000,bradley_filterboost:_2007}
 \citation{balsubramani_sharp_2014}
 \citation{balsubramani_sharp_2014}
-\newlabel{fig:architecture}{{1}{3}{The \Sparrow \ system architecture}{figure.1}{}}
+\newlabel{eqn:neff}{{6}{3}{}{equation.3.6}{}}
 \newlabel{sec:balsubramani}{{3.3}{3}{}{subsection.3.3}{}}
 \newlabel{thm:balsubramani}{{1}{3}{based on \cite {balsubramani_sharp_2014} Theorem 4}{theorem.1}{}}
 \citation{kitagawa_monte_1996}
-\citation{sonnenburg_coffin_2010,agarwal_reliable_2014}
+\newlabel{fig:architecture}{{1}{4}{The \Sparrow \ system architecture}{figure.1}{}}
 \newlabel{sec:Algorithms}{{4}{4}{}{section.4}{}}
 \newlabel{fig:edge}{{2}{4}{The edge of the rules being added to the strong rule (trained on the splice site dataset). New rules are being added to the ensemble with a weight calculated using the value of the threshold $\gamma $ at the time of their detection until no rule with an advantage over $\gamma $ can be detected. At that time \Sparrow \ shrinks the value of the target edge $\gamma $, and restarts the scanner}{figure.2}{}}
-\newlabel{sec:experiments}{{5}{4}{Incremental Updates}{section.5}{}}
+\citation{sonnenburg_coffin_2010,agarwal_reliable_2014}
 \newlabel{table-exp}{{1}{5}{Comparison of the total training time on the splice site detection task (minutes) and the number of rules in the final ensemble when it converges. The (m) suffix denotes the package loads all training data to memory. The (d) suffix denotes the package does not load all training data to memory and uses disk as the external memory}{table.1}{}}
 \newlabel{table-per-tree}{{2}{5}{Comparison of the per-tree training time on the splice site detection task (seconds). The (m) suffix denotes the package loads all training data to memory. The (d) suffix denotes the package does not load all training data to memory and uses disk as the external memory}{table.2}{}}
-\newlabel{sec:Conclusion}{{6}{5}{Incremental Updates}{section.6}{}}
+\newlabel{sec:experiments}{{5}{5}{Incremental Updates}{section.5}{}}
 \bibdata{ms_nourl}
 \bibcite{agarwal_reliable_2014}{{1}{2014}{{Agarwal et~al.}}{{Agarwal, Chapelle, Dudík, and Langford}}}
 \bibcite{balsubramani_sharp_2014}{{2}{2014}{{Balsubramani}}{{}}}
 \bibcite{bradley_filterboost:_2007}{{3}{2007}{{Bradley \& Schapire}}{{Bradley and Schapire}}}
 \bibcite{chen_xgboost:_2016}{{4}{2016}{{Chen \& Guestrin}}{{Chen and Guestrin}}}
-\bibcite{domingo_scaling_2000}{{5}{2000}{{Domingo \& Watanabe}}{{Domingo and Watanabe}}}
-\bibcite{ke_lightgbm:_2017}{{6}{2017}{{Ke et~al.}}{{Ke, Meng, Finley, Wang, Chen, Ma, Ye, and Liu}}}
-\bibcite{kitagawa_monte_1996}{{7}{1996}{{Kitagawa}}{{}}}
-\bibcite{schapire_boosting:_2012}{{8}{2012}{{Schapire \& Freund}}{{Schapire and Freund}}}
 \newlabel{fig:loss}{{3}{6}{Comparing the average loss on the testing data using \Sparrow , XGBoost, and LightGBM, lower is better. The period of time that the loss is constant for \Sparrow \ is when the algorithm is generating a new sample set}{figure.3}{}}
+\newlabel{sec:Conclusion}{{6}{6}{Incremental Updates}{section.6}{}}
 \newlabel{fig:auprc}{{4}{6}{Comparing the area under the precision-recall curve (AUPRC) on the testing data using \Sparrow , XGBoost, and LightGBM, higher is better. (left) Normal scale, clipped on right. (right) Log scale, clipped on left. The period of time that the AUPRC is constant for \Sparrow \ is when the algorithm is generating a new sample set}{figure.4}{}}
-\bibcite{sonnenburg_coffin_2010}{{9}{2010}{{Sonnenburg \& Franc}}{{Sonnenburg and Franc}}}
-\bibcite{wald_sequential_1973}{{10}{1973}{{Wald}}{{}}}
+\bibcite{domingo_scaling_2000}{{5}{2000}{{Domingo \& Watanabe}}{{Domingo and Watanabe}}}
+\bibcite{freund_alternating_1999}{{6}{1999}{{Freund \& Mason}}{{Freund and Mason}}}
+\bibcite{friedman_additive_2000}{{7}{2000}{{Friedman et~al.}}{{Friedman, Hastie, and Tibshirani}}}
+\bibcite{hastie_elements_2009}{{8}{2009}{{Hastie et~al.}}{{Hastie, Tibshirani, and Friedman}}}
+\bibcite{ke_lightgbm:_2017}{{9}{2017}{{Ke et~al.}}{{Ke, Meng, Finley, Wang, Chen, Ma, Ye, and Liu}}}
+\bibcite{kitagawa_monte_1996}{{10}{1996}{{Kitagawa}}{{}}}
+\bibcite{schapire_boosting:_2012}{{11}{2012}{{Schapire \& Freund}}{{Schapire and Freund}}}
+\bibcite{schapire_improved_1999}{{12}{1999}{{Schapire \& Singer}}{{Schapire and Singer}}}
+\bibcite{schapire_boosting_1998}{{13}{1998}{{Schapire et~al.}}{{Schapire, Freund, Bartlett, and Lee}}}
+\bibcite{sonnenburg_coffin_2010}{{14}{2010}{{Sonnenburg \& Franc}}{{Sonnenburg and Franc}}}
+\bibcite{wald_sequential_1973}{{15}{1973}{{Wald}}{{}}}
 \bibstyle{sysml2019}
-\newlabel{algorithm}{{1}{7}{Appendix: Pseudocode for \Sparrow }{algorithm.1}{}}
-\newlabel{alg-scanner}{{2}{7}{Appendix: Pseudocode for \Sparrow }{algorithm.2}{}}
-\newlabel{alg-sampler}{{3}{7}{Appendix: Pseudocode for \Sparrow }{algorithm.3}{}}
+\newlabel{appendix:pseudocode}{{6}{8}{Appendix: Pseudocode for \Sparrow }{section*.5}{}}
+\newlabel{algorithm}{{1}{8}{Appendix: Pseudocode for \Sparrow }{algorithm.1}{}}
+\newlabel{alg-scanner}{{2}{8}{Appendix: Pseudocode for \Sparrow }{algorithm.2}{}}
+\newlabel{alg-sampler}{{3}{8}{Appendix: Pseudocode for \Sparrow }{algorithm.3}{}}
