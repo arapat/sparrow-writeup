@@ -7,14 +7,13 @@ boosted trees: XGBoost and LightGBM.
 
 \begin{table}[]
 \centering
-\label{table-exp}
-\begin{tabular}{|l|l|c|c|}
+\begin{tabular}{|r|r|r|r|}
 \hline
 Memory       & \Sparrow         & XGBoost             & LightGBM       \\ \hline
-16 GB        & 18.5             & 3224.7 (on disk) & (crash)        \\
-32 GB        & 17.9             & 1705.8 (on disk) & (crash)        \\
-72 GB        & 21.9             & 1497.7 (on disk) & 108.1          \\
-144 GB       & 19.6             & 241.4 (in memory)   & 109.4          \\ \hline
+16 GB        & 18.5 (d)         & 3224.7 (d) & (crash)        \\
+32 GB        & 17.9 (d)         & 1705.8 (d) & (crash)        \\
+72 GB        & 21.9 (d)         & 1497.7 (d) & 108.1 (m)          \\
+144 GB       & 19.6 (d)         & 241.4  (m) & 109.4 (m)         \\ \hline
 
 % \end{tabular}
 % \vspace{0.2cm}
@@ -27,7 +26,31 @@ Memory       & \Sparrow         & XGBoost             & LightGBM       \\ \hline
 
 \caption{Comparison of the total training time on
 the splice site detection task (minutes) and the number
-of rules in the final ensemble when it converges}
+of rules in the final ensemble when it converges.
+The (m) suffix denotes the package loads all training data to memory.
+The (d) suffix denotes the package does not load all training data to memory and uses disk
+as the external memory.
+}\label{table-exp}
+\end{table}
+
+\begin{table}[]
+\centering
+\begin{tabular}{|r|r|r|r|}
+\hline
+Memory       & \Sparrow            & XGBoost    & LightGBM       \\ \hline
+16 GB        & 5.7 (d)             & 483.7 (d)  & (crash)        \\
+32 GB        & 5.6 (d)             & 255.9 (d)  & (crash)        \\
+72 GB        & 6.8 (d)             & 224.7 (d)  & 16.2 (d)          \\
+144 GB       & 6.6 (d)             & 36.2 (m)   & 16.4 (d)          \\ \hline
+\end{tabular}
+
+\vspace{0.2cm}
+
+\caption{Comparison of the per-tree training time
+on the splice site detection task (seconds).
+The (m) suffix denotes the package loads all training data to memory.
+The (d) suffix denotes the package does not load all training data to memory and uses disk
+as the external memory.}\label{table-per-tree}
 \end{table}
 
 
@@ -65,38 +88,35 @@ We ran the evaluations on four different instance types with increasing memory c
 specifically
 16\,GB (\texttt{c5d.2xlarge}), 32\,GB (\texttt{c5d.2xlarge}),
 72\,GB (\texttt{c5d.9xlarge}), and 144\,GB (\texttt{c5d.18xlarge}).
-The training time in each configuration is listed in Table~\ref{table-exp}.
-
-\begin{table}[]
-\centering
-\label{table-per-tree}
-\begin{tabular}{|l|l|c|c|}
-\hline
-Memory       & \Sparrow         & XGBoost             & LightGBM       \\ \hline
-16 GB        & 5.7             & 483.7 (on disk) & (crash)        \\
-32 GB        & 5.6             & 255.9 (on disk) & (crash)        \\
-72 GB        & 6.8             & 224.7 (on disk) & 16.2          \\
-144 GB       & 6.6             & 36.2 (in memory)   & 16.4          \\ \hline
-\end{tabular}
-
-\vspace{0.2cm}
-
-\caption{Comparison of the per-tree training time
-on the splice site detection task (seconds)}
-\end{table}
+The memory requirement of \Sparrow\ is decided by the sample size,
+which is a configurable parameter.
+XGBoost supports external memory training when the memory is too small to fit the
+training dataset.
+Unlike XGBoost, LightGBM does not support external memory execution.
 
 
 \subsection{Evaluation}
+
+We summarize the experiments results in Table~\ref{table-exp} by
+using the convergence time to an almost optimal loss of $0.061$.
+Table~\ref{table-per-tree} lists the per-tree training time of each packages
+in different memory settings.
+The in-memory version of XGBoost runs out of memory on the instances with
+the memory sizes of 16-72 GB. We trained the model using the external memory
+version on those instances.
+For LightGBM, it runs out of memory on the instances with 16 GB and 32 GB memory.
+
 
 Performance of each of the algorithm in terms of
 the exponential loss as a function of time on the testing dataset is given in
 Figure~\ref{fig:loss}. Observe that all algorithms achieve similar
 final loss, but it takes them different amount of time to reach that
-final loss. We summarize these differences in Table~\ref{table-exp} by
-using the convergence time to an almost optimal loss of
-$0.061$. Observe  XGBoost off-memory is about 27
-times slower than a single \Sparrow\ worker which is also off-memory. That
-time improves by another factor of 3.2 by using 10 machines instead of 1.
+final loss.
+In the most limited memory setting (16 GB),
+XGBoost external memory is about 174x
+ slower than \Sparrow\ which also uses external memory.
+Even comparing to the in-memory versions of LightGBM and XGBoost,
+\Sparrow\ is 6x and 13x faster, respectively.
 
 In Figure~\ref{fig:auprc} we perform the comparison in terms of
 AUPRC. The results are similar in terms of speed. However, in this
