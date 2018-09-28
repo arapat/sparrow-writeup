@@ -47,138 +47,86 @@ distribution.
 Adaboost performs coordinate-wise gradient descent where each
 coordinate corresponds to one base rule. Using
 equation~\ref{eqn:weights} we can express the gradient with respect to
-base rule $h$ as a correlation: 
+base rule $h$ as a correlation, which we also call the {\em true edge}: 
 \begin{equation} \label{eqn:true-edge}
 \edge_{t}(h) \doteq \corr_{\Dist_{t-1}}(h) \doteq \Expect{(\vx,y) \sim \Dist_{t-1}}{h(\vx) y}
 \end{equation}
 
-The goal of a single step of boosting is to find a base rule with
-significant correlation.~\footnote{Some times the goal is stated as
-  finding the {\em most correlated rule}. That is a sufficient
-  condition but is not necessary. Here we require only a rule with
-  significant correlation.}
+The goal of a single boosting step is to find a base rule with
+significant edge.~\footnote{Some times the goal is stated as
+  finding the rule with the {\em maximal} edge.  Here we require only
+  that $h_t$ has a significant edge.}
 
-So far, our discussion was restricted to the infinite sample limit. In
-a real situation, the algorithm has access only to a {\em finite}
-dataset, and therefor has to {\em estimate} the correlations of the
-base rules.
+Up to this point, our discussion regarded the true expected value or
+an inifinitely large training set. Real training sets are finite, 
+therefore \Sparrow\ has to {\em
+  estimate} the edge of $h$. We use the standard unbiased estimate
 \begin{equation} \label{eqn:emp-edge}
 \edgeEmp_{t}(h) \doteq \corrEmp_{\Dist_{t-1}}(h)
-\doteq \frac{1}{Z_{t-1}}
-\sum_{i=1}^n e^{-S_{t-1}(\vx_i)} h(\vx_i) y_i
+\doteq 
+\sum_{i=1}^n \frac{w_i}{Z_{t-1}} h(\vx_i) y_i
 \end{equation}
+where  $w_i = e^{-S_{t-1}(\vx_i)}$ and $Z_{t-1} = \sum_{i=1}^n w_i$
 
-{\bf Yoav: Worked Until Here}
-
-works by generating a sequence of distributions
-$\Dist=\Dist_0, \Dist_1,\ldots$ and finding, for each distribution a
-``weak rule'' which is a base rule $h_t$ which is slightly better than
-random guessing. As the range of $h$ is $[-1,+1]$ it is convenient to
-measure the quality of $h$ using {\em correlation}, rather than {\em
-  error}:
-With denote the advantage over random guessing, or the ``edge'', as
-$\gamma_t \doteq \corr_{\Dist_t}(h_t)$. The weak requirement is that 
-$\gamma_t \neq 0$
-
-
-The most time-consuming part in AdaBoost is scanning through the
-training examples for finding the weak rule.
-\Sparrow\ reduces the required time by sampling subsets of the data into
-memory and by reading just enough data to find a good (rather than the
-best) weak rule. These techniques are based on sequential analysis and
-on selective sampling, which we now describe.
-
-\subsection{Sequential analysis}
-Sequential analysis (SA) was introduced by
-Wald~\cite{wald_sequential_1973} in the 1940s.  Here we give a short
-illustration. Suppose we want to estimate the expected loss of a
-model. In the standard large deviation analysis we assume that the
-loss is bounded in some range, say $[-M,+M]$ and that the size of the
-training set is $n$. This implies that the standard deviation of the
-training loss is at most $M/\sqrt{n}$. In order to let this standard
-deviation be smaller than some $\epsilon>0$ we need that
-$n > (M/\epsilon)^2$. While this analysis is optimal in the worst case, it
-can be improved if we have additional information about the standard
-deviation. We can glean such information from the observed losses by
-using the following sequential analysis method. Instead of choosing
-$n$ ahead of time, the algorithm computes the loss of one example at a
-time. A {\em stopping rule} is used to decide whether, conditioned on
-the sequence of losses seen so far, there is very small probability
-that the difference between the average loss and the true loss is
-larger than $\epsilon>0$. The result is that when the standard
-deviation is significantly smaller than $M$ the number of examples
-that need to be used in the estimate is much smaller than
-$n=(M/\epsilon)^2$.
-
-\subsubsection{Sequential Analysis for Boosting}\label{sec:methods:early-stop}
-
-A small but important observation is that AdaBoost does not require
-finding the weak rule with the {\bf smallest} weighted error at each
-iteration. Rather, it is enough to find a rule for which we are sure
-that it has a significant (but not necessarily maximal) advantage over
-random guessing.
-More precisely, we want to know that, with high
-probability over the choice of $\training \sim \Dist^n$, the rule $h$
-has a significant {\em true} edge $\edge(h)$.
-
-Domingo and Watanabe~\cite{domingo_scaling_2000} and Bradley and
-Schapire~\cite{bradley_filterboost:_2007} proposed using early
-stopping to take advantage of such situations. The idea is simple:
-instead of scanning through all of the training examples when
-searching for the next weak rule, a {\em stopping rule} is checked for
-each $h \in \cH$ after each training example, and if this stopping
-rule ``fires'' then the scan is terminated and the $h$ that caused the
-rule to fire is added to the strong rule.
-{\bf Note that if a few rules are good and most are bad, this gives a
-  significant reduction in sample size.}
-
-\cite{bradley_filterboost:_2007} and~\cite{domingo_scaling_2000}
-use stopping rules that apply to equally weighted sampled
-data. For the reasons that will be explained in the next section, we use a different
- stopping rule that will be explained in
- Section~\ref{sec:balsubramani}.
-
+The novelty of \Sparrow\ is in the way it uses samples of the training
+data to to identify rules whose true edge is significant.
+Several statistical techniques are used to minimize the number of
+examples needed to compute the estimates.
 
 \subsection{Effective Sample Size}
 \label{sec:effectiveSampleSize}
-Equation~\ref{eqn:gamma_emp} defines $\edgeEmp(h)$, which is an
-estimate of $\edge(h)$. How accurate is this estimate? Our initial
-gut reaction is that if $\training$ contains $n$ examples the error should be
-about $1/\sqrt{n}$. However, when the examples are weighted this is
-clearly wrong. Suppose, for example that $k$ out of the $n$ examples
-have weight one and the rest have weight zero. Obviously in this case
-we cannot hope for an error smaller than $1/\sqrt{k}$.
-
-A more quantitative analysis follows. Suppose that the weights of the
-examples in the training set $\training=\{ (x_1, y_1), \ldots, (x_n,
-y_n) \}$ are $w_1=w(x_1,y_1),\ldots,w_n=w(x_n,y_n)$. Thinking of
-finding a good weak rule in terms of hypothesis testing, the null
-hypothesis is that the weak rule $h$ has no edge. Finding a rule that
-is significantly better than random corresponds to rejecting the
-hypothesis that $\edge(h)=0$.  Assuming the null hypothesis, $y_i
-h(x_i)$ is $+1$ with probability 1/2 and $-1$ with probability
-$1/2$. From central limit theorem and assuming $n$ is larger than
-$100$, we get that the null distribution for $\edgeEmp(h)=\sum_{i=1}^n
-w_i y_i h(x_i)$ is normal with zero mean and standard deviation
-$\sum_{i=1}^n w_i^2$. The statistical test one would use in this case
-is the $\Ztest$-test for
-\begin{equation} \label{eqn:Ztest}
-\Ztest = \frac{\edgeEmp(h)}{\sqrt{\sum_{i=1}^n w_i^2}}
-= \frac{\sum_{i=1}^n w_i y_i h(x_i)}{\sqrt{\sum_{i=1}^n w_i^2}}
+Equation~\ref{eqn:em-edge} defines $\edgeEmp(h)$, which is an
+unbiased estimate of $\edge(h)$. How accurate is this estimate? A
+standard quantifier is the variance of the estimator:
+\begin{equation} \label{eqn:variance}
+ \mbox{Var}(\edgeEmp) = \frac{\sum_{i=1}^n w_i^2}{\left(\sum_{i=1}^n w_i\right)^2}
 \end{equation}
-As should be expected, the value of $\Ztest$ remains the same whether
-or not $\sum_{i=1}^n w_i=1$. Based on Equation~\ref{eqn:Ztest} we
-define the {\em effective number of examples} corresponding to the
-un-normalized weights $w_1,\ldots,w_n$ as:
+If all of the weights are equal $\mbox{Var}(\edgeEmp) = 1/n$ which
+corresponds to a standard deviation of $1/\sqrt{n}$ which is the
+expected relation between the sample size and the error.
+
+If the weights are not equal then the variance is larger and the
+estimate is less accurate. We define the {\em effective sample size}
+$\neff$ to be
 \begin{equation} \label{eqn:neff}
   \neff \doteq \frac{\left(\sum_{i=1}^n w_i\right)^2}{\sum_{i=1}^n w_i^2}
 \end{equation}
-Owen~\cite{owen_monte_2013} used a different line of
-argument to arrived at a similar measure of
-the effective samples size for a weighted sample.
+So that $\mbox{Var}(\edgeEmp) = 1/\neff$.
 
-The quantity $\neff$ plays a similar role in large deviation bounds
-such as the Hoeffding bound~\cite{hoeffding_probability_1963} (details omitted).
+To see that the name ``effective sample size'' is apropriate. Consider
+the weights where $w_1=\cdots,w_k=1/k$ and
+$w_{k+1}=\cdots=w_{n}=0$. It is easy to verify that in this case
+$\neff=k$ which agrees with our intuition that examples with zero
+weight don't count.
+
+\Sparrow\ samples examples from disk to memory using {\em weighted
+  sampling}. This is a sequential algrithm that reads from disk one
+example $(\vx,y)$ at a time, calculates the weight for that example
+$w_i$ and the flips a biased coin to accept the example with
+probability $w_i/M$, where $M\geq \max w_i$. Accepted examples are
+stored in main memory with initial weight of $1$.
+
+Suppose $n$ initial memory-resident training examples consist of 99\%
+negative and 1\% positive examples. In that case the first base rule
+will be ``predict negative everywhere''. After reweighting the total
+weights of the positive and negative examples will be equal. This in
+turn means that the the effective size of about $\neff \approx
+n/25$. In other words, the variance of estimates of the edge has
+increased by a factor of 25 relative to the initial uniform weights.
+
+When \Sparrow\ detects that $\neff$ is small. It clears the memory and
+samples a new set from disk. However, as the sampling uses the weights
+as acceptance probabilities, half of the training data will be
+positive and half of them will be negative and $\neff$ is back to $n$.
+
+This process continues as long as Adaboost is making progress and the
+weights are becoming increasingly skewed. When the skew is large,
+$\neff$ is small and \Sparrow\ resamples a new sample with uniform
+weights.
+
+The net effect is that even though the memory-resident samples are
+small, they contain the important examples, whose weight is large.
+
 It also plays
 a central role in Theorem~\ref{thm:balsubramani} and thus in the
 stopping rule that we use.
@@ -208,6 +156,37 @@ Another concern is the fraction of the examples that are selected. In
 the method described here the expected fraction is $(\frac{1}{n}
 \sum_{i=1}^n w_i)/(\max_i w_i)$.
 
+\subsection{Sequential analysis}
+
+\Sparrow achieves Disk-to-Memory efficiency by using weighted
+resampling that is triggered when $\neff$ is too small.
+
+\Sparrow achieve Memory-to-CPU efficiency by reading from memory the
+minimal number of examples that are necessary to establish that a
+particular weak rule has a significant edge. This is done using
+Sequential Analysis and Early Stopping.
+
+Sequential analysis (SA) was introduced by
+Wald~\cite{wald_sequential_1973} in the 1940s.  Here we give a short
+illustration. Suppose we want to estimate the expected loss of a
+model. In the standard large deviation analysis we assume that the
+loss is bounded in some range, say $[-M,+M]$ and that the size of the
+training set is $n$. This implies that the standard deviation of the
+training loss is at most $M/\sqrt{n}$. In order to let this standard
+deviation be smaller than some $\epsilon>0$ we need that $n >
+(M/\epsilon)^2$. While this analysis is optimal in the worst case, it
+can be improved if we have additional information about the standard
+deviation. We can glean such information from the observed losses by
+using the following sequential analysis method. Instead of choosing
+$n$ ahead of time, the algorithm computes the loss of one example at a
+time. A {\em stopping rule} is used to decide whether, conditioned on
+the sequence of losses seen so far, there is very small probability
+that the difference between the average loss and the true loss is
+larger than $\epsilon>0$. The result is that when the standard
+deviation is significantly smaller than $M$ the number of examples
+that need to be used in the estimate is much smaller than
+$n=(M/\epsilon)^2$.
+
 \subsection{\Sparrow's stopping rule} \label{sec:balsubramani}
 
 We use a stopping rule proposed in~\cite{balsubramani_sharp_2014}
@@ -227,3 +206,4 @@ for which they prove the following
   \]
   where $C$ is a universal constant.
 \end{theorem}
+
