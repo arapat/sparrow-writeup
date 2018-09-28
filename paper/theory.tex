@@ -1,6 +1,6 @@
-\section{Theory}
+\section{Theory}\label{sec:theory}
 We start with a brief description of the confidence-rated boosting
-algorithm (Algorithm 9.1 on page 274 of ~\cite{book}).
+algorithm (Algorithm 9.1 on the page 274 of \cite{schapire_boosting:_2012}).
 
 Let $\vx \in X$ be the feature vectors and let the output be $y \in
 Y= \{-1,+1\}$. The target is defined as a joint distribution $\Dist$ over
@@ -14,6 +14,7 @@ $\cH$
 \[
 S_T(\vx) = \left( \sum_{t=1}^T \alpha_t h_t(\vx) \right)
 \]
+
 The strong classifier is the sign of the score function: $H_T =
 \sign(S_T)$.  
 
@@ -82,14 +83,6 @@ standard quantifier is the variance of the estimator:
 \end{equation}
 
 
-
-Our initial
-gut reaction is that if $\training$ contains $n$ examples the error should be
-about $1/\sqrt{n}$. However, when the examples are weighted this is
-clearly wrong. Suppose, for example that $k$ out of the $n$ examples
-have weight one and the rest have weight zero. Obviously in this case
-we cannot hope for an error smaller than $1/\sqrt{k}$.
-
 A more quantitative analysis follows. Suppose that the weights of the
 examples in the training set $\training=\{ (x_1, y_1), \ldots, (x_n,
 y_n) \}$ are $w_1=w(x_1,y_1),\ldots,w_n=w(x_n,y_n)$. Thinking of
@@ -150,8 +143,9 @@ the method described here the expected fraction is $(\frac{1}{n}
 \sum_{i=1}^n w_i)/(\max_i w_i)$.
 
 \subsection{\Sparrow's stopping rule} \label{sec:balsubramani}
- stopping rule proposed
-in~\cite{balsubramani_sharp_2014} for which they prove the following
+
+We use a stopping rule proposed in~\cite{balsubramani_sharp_2014}
+for which they prove the following
 
 \begin{theorem}[based on \cite{balsubramani_sharp_2014} Theorem 4] \label{thm:balsubramani}
   Let $M_t$ be a martingale $M_t = \sum_i^t X_i$,

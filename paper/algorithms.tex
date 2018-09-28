@@ -60,6 +60,7 @@ all weak rules (Figure~\ref{fig:edge}).
     \vspace{0pt}
 \end{figure}
 
+
 \subsection*{Sampler}
 
 Our assumption is that the entire training dataset does
@@ -68,7 +69,7 @@ not fit into main memory and is therefore stored in external storage
 increasingly skewed, making the dataset in memory effectively smaller.
 To counteract that skew, {\bf Sampler} prepares a {\em new}
 training set, in which all of the examples have equal weight, by using
-selective sampling. When the effective number of examples associated
+selective sampling. When the effective sample size associated
 with the old training set becomes too small, the scanner stops using
 the old training set and starts using the new one.\footnote{The
   sampler and scanner can run in parallel on separate cores. However in
