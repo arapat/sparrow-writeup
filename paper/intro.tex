@@ -66,14 +66,23 @@ future work.
 
 \section{related work}
 
-The use of stopping rules to accelerate boosting has been stedied 
-before by Domingo and Watanabe~\cite{domingo_scaling_2000} and by
+The amount of published work on boosting is very large, and reviewing
+it is out of our scope. We highlight the work that most directly
+relates to our work here.
+
+We developed \Sparrow\ using analysis based on the original formulation of
+boosting~\cite{original, confidence-rated-boosting, adtrees, Book}.
+
+We compare \Sparrow\ to the current two leading implementations
+of boosting trees: XGBoost~\cite{chen_xgboost:_2016} and
+LightGBM~\cite{ke_lightgbm:_2017}.
+These implementations are based on an alternative formulation of
+boosting propsed by Freedman Hastie and Tibshirani~\cite{}.
+
+The use of stopping rules to accelerate boosting has been studied 
+before us by Domingo and Watanabe~\cite{domingo_scaling_2000} and by
 Bradley and Schapire~\cite{bradley_filterboost:_2007}.
 
-Our work here is based on the original formulation of
-boosting~\cite{original, confidence-rated-boosting, adtrees, Book}.
-XGBoost and LightGBM are based on an alternative formulation of
-boosting propsed by Freedman Hastie and Tibshirani~\cite{}.
 
 \iffalse
 

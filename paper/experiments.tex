@@ -97,15 +97,10 @@ Unlike XGBoost, LightGBM does not support external memory execution.
 
 \subsection{Evaluation}
 
-We summarize the experiments results in Table~\ref{table-exp} by
-using the convergence time to an almost optimal loss of $0.061$.
-Table~\ref{table-per-tree} lists the per-tree training time of each packages
-in different memory settings.
-The in-memory version of XGBoost runs out of memory on the instances with
-the memory sizes of 16-72 GB. We trained the model using the external memory
-version on those instances.
-For LightGBM, it runs out of memory on the instances with 16 GB and 32 GB memory.
-
+We compare \Sparrow\ XGBoost and LightGBM. The comparison was done in
+terms of the reduction in the exponential loss which is what boosting
+minimizes directly and in terms of a AUPRC which is often more
+relevant for practice.
 
 Performance of each of the algorithm in terms of
 the exponential loss as a function of time on the testing dataset is given in
@@ -123,6 +118,19 @@ AUPRC. The results are similar in terms of speed. However, in this
 case XGBoost and LightGBM ultimately achieve a slightly better
 AUPRC. This is baffling, because all algorithms work by minimizing
 exponential loss.
+
+We summarize the experiments results in Table~\ref{table-exp} by
+using the convergence time to an almost optimal exponential loss of $0.061$.
+Table~\ref{table-per-tree} lists the per-tree training time of each packages
+in different memory settings.
+The in-memory version of XGBoost runs out of memory on the instances with
+the memory sizes of 16-72 GB. We trained the model using the external memory
+version on those instances.
+
+LightGB does not have an external memory mode and runs out of memory
+on the instances with 16 GB and 32 GB memory.
+
+
 
 \begin{figure}[t]
     \centering
