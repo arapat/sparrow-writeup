@@ -21,7 +21,7 @@ work to full-size trees are described at the end of the paper.
 A trivial way to deal with the problem of limited memory is to read
 into memory as much data as would fit, and learn only from that data.
 The problem with that approach is increased over-fitting. One approach
-to this problem is presented in random-forests~\cite{hastie_elements_2009},
+to this problem is presented in random-forests~\cite{breiman_random_2001},
 where trees are trained on separate subsets of the data and then
 combined by a majority vote. Random forests significantly reduce the
 variance of the trees, but they do not decrease the bias. Boosting can
