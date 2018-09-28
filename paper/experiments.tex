@@ -125,45 +125,30 @@ exponential loss.
 
 
 \section{Future Work}\label{sec:Conclusion}
-While the results are exciting plenty of work remains. We plan to
-extend the algorithm to boosting full trees as well as other types of
-classifiers.
-In addition, we observe that run time is now dominated by the time it
-takes to create new samples, we have some ideas for how to
-significantly reduce the sampling time.
+Our preliminary results show that early stopping and selective
+sampling can dramatically speed up boosting algorithms on large
+real-world datasets.
+
+The source code for sparrow is available for {\tt }
+
+We have several directions for future work.
+
+First, \Sparrow\ is currently limited boosting stumps and to binary
+classification. We plan to extend \Sparrow\ to deep trees and to allow
+more than two labels. We will then run it on many more data sets.
+
+Second, our work shows that sampling from memory can take an
+inordinate amount of time when the training set is large and the
+weights are highly skewed. We have developed a stratified sampling
+algrithm that significantly reduces this problem.
+
+Third, we are working on a parallelized version of \Sparrow\ which
+uses a  novel type of asynchronous communication protocol.
+
+Fourth, our current implementation of \Sparrow\ does not take
+advantage of multi-core machines as much as LightGBM does. We plan to
+address that problem.
 
 
 
 
-
-\iffalse
-
-\begin{table}[h]
-\centering
-\caption{Dataset used in the experiments}\label{tab:dataset}
-\begin{tabular}{|l|ccccc|}
-\cline{1-6}
-Dataset         & Fraction    & \# Features & Training    &  Training  & Testing     \\
-                & of rare set &             & \#exmaples  &  data size & \#examples  \\ \cline{1-6}
-Human splicing  & 0.3\%       & 141         & 50,000,000  &            & 4627840     \\ \cline{1-6}
-Higgs Boson     &             & 28          & 10,000,000  &            & 1,000,000   \\ \cline{1-6}
-\end{tabular}
-\end{table}
-
-\subsection{Comparison to XGBoost and LightGBM}
-
-
-A table comparing the amount of time it takes for each to converge.
-
-\subsection{Effect of Early Stopping}
-Plot number of examples (as fraction of all training examples) scanned until stopping rule fires and  tree is added (single machine)
-
-\subsection{Effect of selective Sampling}
-Give plots of training and test loss with no resampling, one resampling, two resampling
-
-\subsection{Effect of parallelization}
-Compare running on one machine and running on 10 (Do another resampling at around 0.16 prc)
-
-
-
-\fi

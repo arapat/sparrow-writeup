@@ -24,57 +24,50 @@
 \citation{}
 \citation{Boosting-the-margin}
 \citation{sonnenburg_coffin:_2010,agarwal_reliable_2014}
-\citation{}
 \newlabel{sec:intro}{{1}{1}{}{section.1}{}}
 \citation{domingo_scaling_2000}
 \citation{bradley_filterboost:_2007}
 \citation{original,confidence-rated-boosting,adtrees,Book}
 \citation{}
-\citation{book}
+\citation{schapire_boosting:_2012}
 \citation{Other potential functions have been studied,in this work we restrict ourselves to the original exponential potential function.}
-\citation{wald_sequential_1973}
+\newlabel{sec:theory}{{3}{2}{}{section.3}{}}
 \newlabel{eqn:weights}{{1}{2}{}{equation.3.1}{}}
 \newlabel{eqn:Dt}{{2}{2}{}{equation.3.2}{}}
 \newlabel{eqn:true-edge}{{3}{2}{}{equation.3.3}{}}
 \newlabel{eqn:emp-edge}{{4}{2}{}{equation.3.4}{}}
-\citation{domingo_scaling_2000}
-\citation{bradley_filterboost:_2007}
-\citation{bradley_filterboost:_2007}
-\citation{domingo_scaling_2000}
-\citation{owen_monte_2013}
-\citation{hoeffding_probability_1963}
-\newlabel{sec:methods:early-stop}{{3.1.1}{3}{}{subsubsection.3.1.1}{}}
-\newlabel{eqn:gamma_true}{{5}{3}{}{equation.3.5}{}}
-\newlabel{sec:effectiveSampleSize}{{3.2}{3}{}{subsection.3.2}{}}
-\newlabel{eqn:Ztest}{{6}{3}{}{equation.3.6}{}}
-\newlabel{eqn:neff}{{7}{3}{}{equation.3.7}{}}
+\newlabel{sec:effectiveSampleSize}{{3.1}{2}{}{subsection.3.1}{}}
+\newlabel{eqn:variance}{{5}{2}{}{equation.3.5}{}}
+\newlabel{eqn:neff}{{6}{2}{}{equation.3.6}{}}
+\citation{wald_sequential_1973}
+\citation{domingo_scaling_2000,bradley_filterboost:_2007}
 \citation{balsubramani_sharp_2014}
 \citation{balsubramani_sharp_2014}
-\citation{caragea_framework_2004}
+\newlabel{fig:architecture}{{1}{3}{The \Sparrow \ system architecture}{figure.1}{}}
+\newlabel{sec:balsubramani}{{3.3}{3}{}{subsection.3.3}{}}
+\newlabel{thm:balsubramani}{{1}{3}{based on \cite {balsubramani_sharp_2014} Theorem 4}{theorem.1}{}}
 \citation{kitagawa_monte_1996}
-\newlabel{fig:architecture}{{1}{4}{The \Sparrow \ system architecture}{figure.1}{}}
-\newlabel{sec:balsubramani}{{3.3}{4}{}{subsection.3.3}{}}
-\newlabel{thm:balsubramani}{{1}{4}{based on \cite {balsubramani_sharp_2014} Theorem 4}{theorem.1}{}}
 \newlabel{sec:Algorithms}{{4}{4}{}{section.4}{}}
-\newlabel{sec:single_worker}{{4.1}{4}{}{subsection.4.1}{}}
+\newlabel{fig:edge}{{2}{4}{The edge of the rules being added to the strong rule (trained on the splice site dataset). New rules are being added to the ensemble with a weight calculated using the value of the threshold $\gamma $ at the time of their detection until no rule with an advantage over $\gamma $ can be detected. At that time \Sparrow \ shrinks the value of the target edge $\gamma $, and restarts the scanner}{figure.2}{}}
 \citation{sonnenburg_coffin_2010,agarwal_reliable_2014}
-\newlabel{sec:experiments}{{5}{5}{Incremental Updates:}{section.5}{}}
-\newlabel{table-exp}{{5}{5}{Incremental Updates:}{section.5}{}}
+\newlabel{algorithm}{{1}{5}{Incremental Updates}{algorithm.1}{}}
+\newlabel{alg-scanner}{{2}{5}{Incremental Updates}{algorithm.2}{}}
+\newlabel{table-exp}{{5}{5}{Incremental Updates}{section.5}{}}
+\newlabel{alg-sampler}{{3}{5}{Incremental Updates}{algorithm.3}{}}
+\newlabel{sec:experiments}{{5}{5}{Incremental Updates}{section.5}{}}
 \bibdata{ms_nourl}
 \bibcite{agarwal_reliable_2014}{{1}{2014}{{Agarwal et~al.}}{{Agarwal, Chapelle, Dudík, and Langford}}}
 \bibcite{balsubramani_sharp_2014}{{2}{2014}{{Balsubramani}}{{}}}
 \bibcite{bradley_filterboost:_2007}{{3}{2007}{{Bradley \& Schapire}}{{Bradley and Schapire}}}
-\bibcite{caragea_framework_2004}{{4}{2004}{{Caragea et~al.}}{{Caragea, Silvescu, and Honavar}}}
-\bibcite{chen_xgboost:_2016}{{5}{2016}{{Chen \& Guestrin}}{{Chen and Guestrin}}}
-\bibcite{domingo_scaling_2000}{{6}{2000}{{Domingo \& Watanabe}}{{Domingo and Watanabe}}}
-\bibcite{hoeffding_probability_1963}{{7}{1963}{{Hoeffding}}{{}}}
-\bibcite{ke_lightgbm:_2017}{{8}{2017}{{Ke et~al.}}{{Ke, Meng, Finley, Wang, Chen, Ma, Ye, and Liu}}}
-\bibcite{kitagawa_monte_1996}{{9}{1996}{{Kitagawa}}{{}}}
-\newlabel{fig:loss}{{2}{6}{Comparing the average loss on the testing data using \Sparrow , XGBoost, and LightGBM, lower is better. The period of time that the loss is constant for \Sparrow \ is when the algorithm is generating a new sample set}{figure.2}{}}
-\newlabel{fig:auprc}{{3}{6}{Comparing the area under the precision-recall curve (AUPRC) on the testing data using \Sparrow , XGBoost, and LightGBM, higher is better. (left) Normal scale, clipped on right. (right) Log scale, clipped on left. The period of time that the AUPRC is constant for \Sparrow \ is when the algorithm is generating a new sample set}{figure.3}{}}
-\bibcite{mason_boosting_1999}{{10}{1999}{{Mason et~al.}}{{Mason, Baxter, Bartlett, and Frean}}}
-\bibcite{owen_monte_2013}{{11}{2013}{{Owen}}{{}}}
-\bibcite{schapire_boosting:_2012}{{12}{2012}{{Schapire \& Freund}}{{Schapire and Freund}}}
-\bibcite{sonnenburg_coffin:_2010}{{13}{2010}{{Sonnenburg \& Franc}}{{Sonnenburg and Franc}}}
-\bibcite{wald_sequential_1973}{{14}{1973}{{Wald}}{{}}}
+\bibcite{chen_xgboost:_2016}{{4}{2016}{{Chen \& Guestrin}}{{Chen and Guestrin}}}
+\newlabel{table-per-tree}{{5.1}{6}{Incremental Updates}{subsection.5.1}{}}
+\newlabel{sec:Conclusion}{{6}{6}{Incremental Updates}{section.6}{}}
+\newlabel{fig:loss}{{3}{6}{Comparing the average loss on the testing data using \Sparrow , XGBoost, and LightGBM, lower is better. The period of time that the loss is constant for \Sparrow \ is when the algorithm is generating a new sample set}{figure.3}{}}
+\bibcite{domingo_scaling_2000}{{5}{2000}{{Domingo \& Watanabe}}{{Domingo and Watanabe}}}
+\bibcite{ke_lightgbm:_2017}{{6}{2017}{{Ke et~al.}}{{Ke, Meng, Finley, Wang, Chen, Ma, Ye, and Liu}}}
+\bibcite{kitagawa_monte_1996}{{7}{1996}{{Kitagawa}}{{}}}
+\bibcite{schapire_boosting:_2012}{{8}{2012}{{Schapire \& Freund}}{{Schapire and Freund}}}
+\bibcite{sonnenburg_coffin_2010}{{9}{2010}{{Sonnenburg \& Franc}}{{Sonnenburg and Franc}}}
+\bibcite{wald_sequential_1973}{{10}{1973}{{Wald}}{{}}}
 \bibstyle{sysml2019}
+\newlabel{fig:auprc}{{4}{7}{Comparing the area under the precision-recall curve (AUPRC) on the testing data using \Sparrow , XGBoost, and LightGBM, higher is better. (left) Normal scale, clipped on right. (right) Log scale, clipped on left. The period of time that the AUPRC is constant for \Sparrow \ is when the algorithm is generating a new sample set}{figure.4}{}}

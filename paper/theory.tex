@@ -93,11 +93,11 @@ $\neff$ to be
 \end{equation}
 So that $\mbox{Var}(\edgeEmp) = 1/\neff$.
 
-To see that the name ``effective sample size'' is apropriate. Consider
-the weights where $w_1=\cdots,w_k=1/k$ and
+To see that the name ``effective sample size'' makes sense, consider
+$n$ weights where $w_1=\cdots,w_k=1/k$ and
 $w_{k+1}=\cdots=w_{n}=0$. It is easy to verify that in this case
 $\neff=k$ which agrees with our intuition that examples with zero
-weight don't count.
+weight have no effect on the estimate.
 
 \Sparrow\ samples examples from disk to memory using {\em weighted
   sampling}. This is a sequential algrithm that reads from disk one
@@ -127,34 +127,6 @@ weights.
 The net effect is that even though the memory-resident samples are
 small, they contain the important examples, whose weight is large.
 
-It also plays
-a central role in Theorem~\ref{thm:balsubramani} and thus in the
-stopping rule that we use.
-
-To understand the important role that $\neff$ plays in our algorithm,
-suppose the training set is of size $n$ and that only $m \ll n$
-examples can fit in memory. Our approach is to start by placing a
-random subset of size $m$ into memory and then run multiple
-boosting iterations using this subset. As the strong rule improves,
-$\neff$ decreases and as a result the stopping rule based on
-Theorem~\ref{thm:balsubramani} requires increasingly more examples
-before it is triggered. When $\neff/m$ crosses a pre-specified
-threshold the algorithm flushes out the training examples currently in
-memory and samples a new set of $m$ examples using acceptance
-probability proportional to their weights. The new examples have
-uniform weights and therefor after sampling $\neff=m$.
-
-Intuitively, weighted sampling utilizes the computer's memory better
-than uniform sampling because it places in memory more difficult
-examples and fewer easy examples. The result is better estimates of
-the edges of specialist\footnote{Specialist weak rules and their
-  advantages are described in Section~{sec:Algorithm}} weak rules that
-make predictions on high-weight difficult examples.
-
-
-Another concern is the fraction of the examples that are selected. In
-the method described here the expected fraction is $(\frac{1}{n}
-\sum_{i=1}^n w_i)/(\max_i w_i)$.
 
 \subsection{Sequential analysis}
 
@@ -189,8 +161,19 @@ $n=(M/\epsilon)^2$.
 
 \subsection{\Sparrow's stopping rule} \label{sec:balsubramani}
 
+Using stopping rules for Adabost was proposed in
+~\cite{domingo_scaling_2000,bradley_filterboost:_2007}. Each use a
+different stopping rule. Unlike those works, we are interested in a
+rule that will take into account the fact that examples have different
+weights which impacts the the variance of the estimator. We want a
+stopping rule that is sensitive to $\neff$.
+
+Note that the choice of stopping rule has a direct impact on the
+performance of the algorithm. In other words, we want to use a
+stopping rule that is as tight as possible, including constants.
+
 We use a stopping rule proposed in~\cite{balsubramani_sharp_2014}
-for which they prove the following
+for which they prove the following:
 
 \begin{theorem}[based on \cite{balsubramani_sharp_2014} Theorem 4] \label{thm:balsubramani}
   Let $M_t$ be a martingale $M_t = \sum_i^t X_i$,
@@ -207,3 +190,5 @@ for which they prove the following
   where $C$ is a universal constant.
 \end{theorem}
 
+As we care about constants, we did a series of experiments to find the
+best constant $C$ which we use in \Sparrow.
