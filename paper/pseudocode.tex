@@ -1,0 +1,166 @@
+
+% \algnewcommand\algorithmicwhen{\textbf{when}}
+% \algnewcommand\When{\item[\algorithmicwhen]}
+\algdef{SE}{When}{EndWhen}[1]{\textbf{when} \(\mbox{#1}\) \textbf{do}}{}%
+
+\begin{algorithm}[H]
+\caption{Main procedure of \Sparrow}\label{algorithm}
+
+\begin{algorithmic}[0]
+
+\State \textbf{Initialize} $H=0, L=0$
+\State \textbf{Create initial sample $S$} by calling \textsc{Sample}
+\For{$k:=1 \ldots K$}
+  \State $Ret \gets \Call{Scanner}{\gamma_0, M, i, H, \weakRules}$
+  \If{$Ret$ {is} \textit{Fail}}
+  \State Call \textsc{Sample} to Get a New Sample.
+  \Else
+  \State $i',h,\gamma \gets Ret$
+  \State $i \gets i'$
+  \State $H \gets H + \frac{1}{2} \log \frac{1/2+\gamma}{1/2-\gamma} h$
+  \State Update $L$
+  \EndIf
+\EndFor
+
+\end{algorithmic}
+
+\end{algorithm}
+
+
+
+%% algorithm 2
+\begin{algorithm}[H]
+
+\caption{Procedure the Scanner}\label{alg-scanner}
+
+
+\begin{algorithmic}[0]
+
+\State In-memory sampled set $S$ is defined globally
+\State
+
+\Function{Scanner}{$\gamma_0, M, i_0, H, \weakRules$}
+
+% \State $K$ - Size of the boosting ensemble
+% \State $\gamma_0$ - initial value of the targeting advantage
+% \State $\theta$ - ESS threshold to trigger a new sampling
+% \State $M$ - Maximum number of examples to scan before shrinking
+% the targeting advantage
+
+\State $\gamma \gets \gamma_0, m \gets 0, i \gets i_0$
+\State $V \gets 0, W \gets 0$
+\State $\forall h \in \weakRules: m[h]=0$
+
+% Read at most M examples
+\While {\textbf{True}}
+\State $(x, y, w_s, w_l,H_l) \gets S[i]$  %% JA: S[i] doe NOT need H_l
+\State $ i \gets (i+1) \mbox{ mod } |S| $
+\If{$i=i_0$}
+   \State \textbf{return} \textit{Fail}
+\EndIf
+
+\State $m \gets m + 1$
+\If{$m>M$}
+   \State $\gamma \gets \gamma/2$, $m \gets 0$
+\EndIf
+   
+\State $w \gets \textsc{UpdateWeight}($
+\State \hspace{1.0cm} $x,y,w_l,H_l,w_s,H,i)$  %% JA: H_l is not needed
+\State $V \gets V+w^2$, $W \gets W + |w|$
+
+\ForAll{$h  \in \weakRules$}
+\State $m[h] \gets m[h] + w y h(x)$
+\State $ret \gets \textsc{StoppingRule}($
+\State \hspace{1.5cm} $W,V,m[h],\gamma)$
+
+\If{$ret = \textbf{True}$}
+\State \textbf{return} $i,h,\gamma$
+\EndIf
+
+\EndFor
+\EndWhile
+
+\EndFunction
+% Scanner ends
+
+\State
+
+
+
+\Function{UpdateWeight}{$x,y,w_l,H_l,w_s,H,i$}
+\State Calculate score update $s \gets H(x)-H_l(x)$
+\State Calculate new weight $w \gets w_l \exp{(ys)}$ %% JA: e^{-yH(x)}
+\State Update Sample: $S[i] = (x,y,w_s,w,H)$ %% JA: order should be (x,y,w_s,w) to stay consist with above
+\State \textbf{return} $w/w_s$
+\EndFunction
+
+
+\State
+
+
+\Function{StoppingRule}{$W,V,m,\gamma$}
+\State $C,\delta$ are global parameters.
+\State $M \gets |m-2 \gamma W|$
+\State \textbf{return} $M>C\sqrt{V(\log\log {V \over M_0}+ \log {1
+    \over \delta}}$
+\EndFunction
+
+
+
+\end{algorithmic}
+
+\end{algorithm}
+
+
+
+%% algorithm 3
+\begin{algorithm}[H]
+
+\caption{Procedure of the Sampler}\label{alg-sampler}
+
+
+\begin{algorithmic}[0]
+
+
+\Function{Sample()}{}
+
+\State \textbf{Input:} Randomly permuted, disk-resident training-set.
+\State \textbf{Input} \textrm{Current model} $H$
+
+\State $S \gets \{\}$
+\ForAll { \textrm{available training data } $(x, y)$ }
+	\State $w_s \gets \exp{( -y H(x) )}$
+	\State \textrm{With the probability proportional to } $w_s$, \\
+	\hspace{1.5cm} $S \gets S + \{( x, y, w_s, w_s, H )\}$.
+\EndFor
+
+\State \textbf{return } S
+
+\EndFunction
+
+\end{algorithmic}
+
+
+\end{algorithm}
+
+
+
+% stopping rule update done
+
+% Read M examples already or early stopped
+
+
+%% \If {$m \geq M$}
+%% 	\State $\gamma \gets \gamma / 2$
+%% \EndIf
+%% \State
+
+%% % Communication
+%% \State $H_{network}, L_{network} \gets \textit{BestModelFromNetwork}$
+%% \If {$L_{network} < L_{local}$}
+%% 	\State $L_{local} \gets L_{network}$
+%% \EndIf
+
+
+% Boosting iteration done
+
