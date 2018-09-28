@@ -1,7 +1,7 @@
 \section{Introduction}\label{sec:intro}
 A major bottleneck for learning algorithms that use big data is the
 transfer of the training data up the memory hierarchy from disk,
-through main memory and the caches to the CPU cores. This probem
+through main memory and the caches to the CPU cores. This problem
 becomes severe when the training data does not fit in main memory and
 examples have to be processed multiple times.
 
@@ -21,11 +21,11 @@ work to full-size trees are described at the end of the paper.
 A trivial way to deal with the problem of limited memory is to read
 into memory as much data as would fit, and learn only from that data.
 The problem with that approach is increased over-fitting. One approach
-to this problem is presented in random-forests~\cite{},
+to this problem is presented in random-forests~\cite{hastie_elements_2009},
 where trees are trained on separate subsets of the data and then
 combined by a majority vote. Random forests significantly reduce the
 variance of the trees, but they do not decrease the bias. Boosting can
-reduce the variance as well as the bias~\cite{Boosting-the-margin}. We
+reduce the variance as well as the bias~\cite{schapire_boosting_1998}. We
 therefor want a memory-efficient version of boosting.
 
 \Sparrow\ is based on three ideas from statistics: {\em early stopping},
@@ -50,12 +50,12 @@ is used to stop the reading of examples as soon as a good enough weak
 rule has been identified.
 
 We implemented \Sparrow\ using the Rust programming language. We
-compared it's performace to the performance of XGBoost and LightGBM on
+compared it's performance to the performance of XGBoost and LightGBM on
 50 Million examples (the human acceptor splice site
-dataset~\cite{sonnenburg_coffin:_2010, agarwal_reliable_2014}). We
-show that on a 16GB machine \Sparrow is about 200 times faster than
-XGBoost. On 144GB machine all of the data can be loaded into memory
-and the performance is .....
+dataset~\cite{sonnenburg_coffin_2010, agarwal_reliable_2014}). We
+show that on a 16 GB machine \Sparrow\ is almost 200 times faster than
+XGBoost. On 144 GB machine all of the data can be loaded into memory
+and the performance of \Sparrow\ is 6-13x faster than LightGBM and XGBoost.
 
 The rest of the paper is organized as follows. In Section~\ref{sec:theory} we
 describe the statistical tools used in the design of \Sparrow. In
@@ -66,14 +66,14 @@ future work.
 
 \section{related work}
 
-The use of stopping rules to accelerate boosting has been stedied 
+The use of stopping rules to accelerate boosting has been studied 
 before by Domingo and Watanabe~\cite{domingo_scaling_2000} and by
 Bradley and Schapire~\cite{bradley_filterboost:_2007}.
 
 Our work here is based on the original formulation of
-boosting~\cite{original, confidence-rated-boosting, adtrees, Book}.
+boosting~\cite{freund_alternating_1999, schapire_improved_1999, freund_alternating_1999, schapire_boosting:_2012}.
 XGBoost and LightGBM are based on an alternative formulation of
-boosting propsed by Freedman Hastie and Tibshirani~\cite{}.
+boosting proposed by Friedman, Hastie, and Tibshirani~\cite{friedman_additive_2000}.
 
 \iffalse
 
