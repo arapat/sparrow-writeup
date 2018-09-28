@@ -30,12 +30,12 @@ therefor want a memory-efficient version of boosting.
 
 \Sparrow\ is based on three ideas from statistics: {\em early stopping},
 the {\em effective} number of examples and {\em weighted
-  sampling}. Each of these ideas appears in the literature, but their
+  sampling}. These ideas appear in the literature in various forms, but their
 combination into an algorithm is new. We now describe how these three
 ideas are combined.
 
 At a high level, \Sparrow\ works as follows. It repeatedly draws
-weighted samples from disk into memory. Each sample is
+samples from disk into memory. Each sample is
 used for multiple boosting iterations. As boosting progresses the
 weights of the examples become increasingly skewed. A skewed sample is
 effectively smaller. Examples with very small weight are essentially a
@@ -57,14 +57,15 @@ show that on a 16 GB machine \Sparrow\ is almost 200 times faster than
 XGBoost. On 144 GB machine all of the data can be loaded into memory
 and the performance of \Sparrow\ is 6-13x faster than LightGBM and XGBoost.
 
-The rest of the paper is organized as follows. In Section~\ref{sec:theory} we
-describe the statistical tools used in the design of \Sparrow. In
-Section~\ref{sec:Algorithms} we describe \Sparrow. In Section~\ref{sec:experiments} we describe
-the experiments comparing \Sparrow\ to XGBoost and LightGBM. We
-conclude in Section~\ref{sec:Conclusion} with %some conclusions and
-future work.
+The rest of the paper is organized as follows. In
+Section~\ref{sec:relatedWork} we briefly review related work.  In
+Section~\ref{sec:theory} describe the statistical theory we bring to
+bear in the design of \Sparrow. In Section~\ref{sec:Algorithms} we describe
+\Sparrow. In Section~\ref{sec:experiments} we describe the experiments
+comparing \Sparrow\ to XGBoost and LightGBM. We conclude in
+Section~\ref{sec:Conclusion} with %some conclusions and future work.
 
-\section{related work}
+\section{related work} \label{sec:relatedWork}
 
 The amount of published work on boosting is very large, and reviewing
 it is out of our scope. We highlight the work that most directly

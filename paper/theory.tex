@@ -106,6 +106,8 @@ $w_i$ and the flips a biased coin to accept the example with
 probability $w_i/M$, where $M\geq \max w_i$. Accepted examples are
 stored in main memory with initial weight of $1$.
 
+LightGBM also uses sampling, but it's sampling method is biased.
+
 Suppose $n$ initial memory-resident training examples consist of 99\%
 negative and 1\% positive examples. In that case the first base rule
 will be ``predict negative everywhere''. After reweighting the total
@@ -144,7 +146,7 @@ illustration. Suppose we want to estimate the expected loss of a
 model. In the standard large deviation analysis we assume that the
 loss is bounded in some range, say $[-M,+M]$ and that the size of the
 training set is $n$. This implies that the standard deviation of the
-training loss is at most $M/\sqrt{n}$. In order to let this standard
+training loss is at most $M/\sqrt{n}$. In order to make this standard
 deviation be smaller than some $\epsilon>0$ we need that $n >
 (M/\epsilon)^2$. While this analysis is optimal in the worst case, it
 can be improved if we have additional information about the standard

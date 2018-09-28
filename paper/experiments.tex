@@ -127,19 +127,12 @@ The in-memory version of XGBoost runs out of memory on the instances with
 the memory sizes of 16-72 GB. We trained the model using the external memory
 version on those instances.
 
-LightGB does not have an external memory mode and runs out of memory
-on the instances with 16 GB and 32 GB memory.
-
-
-
 \begin{figure}[t]
     \centering
     \includegraphics[width=0.5\textwidth]{figs/splice-loss2m.png}
     \caption{Comparing the average loss on the testing data using \Sparrow, XGBoost, and LightGBM, lower is better.
         The period of time that the loss is constant for \Sparrow\ is when the algorithm is generating a new sample set.}~\label{fig:loss}
 \end{figure}
-
-
 
 \begin{figure}[t]
     \centering
