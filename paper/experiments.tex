@@ -5,7 +5,34 @@ the run time of \Sparrow\ with those of two leading implementations of
 boosted trees: XGBoost and LightGBM.
 
 
-\paragraph{Setup}
+\begin{table}[]
+\centering
+\label{table-exp}
+\begin{tabular}{|l|l|c|c|}
+\hline
+Memory       & \Sparrow         & XGBoost             & LightGBM       \\ \hline
+16 GB        & 18.5             & 3224.7 (on disk) & (crash)        \\
+32 GB        & 17.9             & 1705.8 (on disk) & (crash)        \\
+72 GB        & 21.9             & 1497.7 (on disk) & 108.1          \\
+144 GB       & 19.6             & 241.4 (in memory)   & 109.4          \\ \hline
+
+% \end{tabular}
+% \vspace{0.2cm}
+% \begin{tabular}{|l|l|c|c|}
+%                 & \Sparrow         & XGBoost             & LightGBM       \\ \hline
+\#~Rules  & 189    & 400                 & 400            \\ \hline
+\end{tabular}
+
+\vspace{0.2cm}
+
+\caption{Comparison of the total training time on
+the splice site detection task (minutes) and the number
+of rules in the final ensemble when it converges}
+\end{table}
+
+
+\subsection{Setup}
+
 We use a large dataset that was used in other studies of large scale
 learning on detecting human acceptor splice site~\cite{sonnenburg_coffin_2010, agarwal_reliable_2014}.
 The learning task is binary classification.
@@ -42,20 +69,25 @@ The training time in each configuration is listed in Table~\ref{table-exp}.
 
 \begin{table}[]
 \centering
-\label{table-exp}
+\label{table-per-tree}
 \begin{tabular}{|l|l|c|c|}
 \hline
-Memory       & \Sparrow         & XGBoost           & LightGBM       \\ \hline
-16 GB        & 15               & 2960 (off memory) & (crash)        \\
-32 GB        & 15               & 1554 (off memory) & (crash)        \\
-72 GB        & 14               &                   & 100            \\
-144 GB       &                  & 227               & 100            \\ \hline
+Memory       & \Sparrow         & XGBoost             & LightGBM       \\ \hline
+16 GB        & 5.7             & 483.7 (on disk) & (crash)        \\
+32 GB        & 5.6             & 255.9 (on disk) & (crash)        \\
+72 GB        & 6.8             & 224.7 (on disk) & 16.2          \\
+144 GB       & 6.6             & 36.2 (in memory)   & 16.4          \\ \hline
 \end{tabular}
+
 \vspace{0.2cm}
-\caption{Training time on the Splice Site Detection Task}
+
+\caption{Comparison of the per-tree training time
+on the splice site detection task (seconds)}
 \end{table}
 
-\paragraph{Evaluation}
+
+\subsection{Evaluation}
+
 Performance of each of the algorithm in terms of
 the exponential loss as a function of time on the testing dataset is given in
 Figure~\ref{fig:loss}. Observe that all algorithms achieve similar
@@ -74,7 +106,7 @@ exponential loss.
 
 \begin{figure}[t]
     \centering
-    \includegraphics[width=0.5\textwidth]{figs/splice-loss.png}
+    \includegraphics[width=0.5\textwidth]{figs/splice-loss2m.png}
     \caption{Comparing the average loss on the testing data using \Sparrow, XGBoost, and LightGBM, lower is better.
         The period of time that the loss is constant for \Sparrow\ is when the algorithm is generating a new sample set.}~\label{fig:loss}
 \end{figure}
@@ -83,7 +115,7 @@ exponential loss.
 
 \begin{figure}[t]
     \centering
-    \includegraphics[width=0.5\textwidth]{figs/splice-auprc.png}
+    \includegraphics[width=0.5\textwidth]{figs/splice-auprc2m.png}
     \caption{Comparing the area under the precision-recall curve (AUPRC) on the testing data
     using \Sparrow, XGBoost, and LightGBM, higher is better.
     (left) Normal scale, clipped on right.
