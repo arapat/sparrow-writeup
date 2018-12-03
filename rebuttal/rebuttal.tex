@@ -1,0 +1,53 @@
+\documentclass[a4paper, parskip=full]{article}
+\setlength{\parskip}{1em}
+
+%% Language and font encodings
+\usepackage[english]{babel}
+\usepackage[utf8x]{inputenc}
+\usepackage[T1]{fontenc}
+
+%% Sets page size and margins
+\usepackage[a4paper,top=3cm,bottom=2cm,left=3cm,right=3cm,marginparwidth=1.75cm]{geometry}
+
+%% Useful packages
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{graphicx}
+\usepackage[colorlinks=true, allcolors=blue]{hyperref}
+
+%% Useful macros
+\newtheorem{theorem}{Theorem}
+\newcommand{\ts}{\textsuperscript}
+\setlength\parindent{0pt}
+
+%\title{Find Biased Coins}
+% \author{You}
+
+\begin{document}
+%\maketitle
+
+We thank the reviewers for their constructive feedback.
+
+In this paper, we presented two techniques, early stopping and
+re-sampling, for optimizing learning algorithms. Specifically, we
+applied these techniques on training a boosting classifier which uses
+one-layer trees as the weak rules. We described the theory behind the
+two techniques, and their connection via the quality measure of a sample
+set which defined as the Effective Sample Size.
+
+We compared the experiment results with two leading boosting packages,
+XGBoost and LightGBM using a dataset of 27GB and EC2 instances of
+varying sizes. The experiments show more than 10x speedup when the
+dataset fits in memory and a speedup of more than 100x when the data
+does not fit in memory.
+
+The main criticisms of the reviewers are (1) the need to compare on more
+datasets and (2) extending the implementation to trees of depth larger
+than two. We are currently working on these two issues.
+
+
+\bibliographystyle{alpha}
+\bibliography{sample}
+
+\end{document}
+
