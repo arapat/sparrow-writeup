@@ -1,5 +1,30 @@
 \section{Experiments}\label{sec:experiments}
 
+\subsection{Plan}
+
+Experiment setup
+
+\begin{itemize}
+    \item Scanner memory size (currently 32 GB), can go down to 5 GB
+    \item Scanner number of CPU cores
+    \item Sample size (current 1M, 5M)
+    \item How much it costs $TrainingTime \times NumOfScanners \times CostPerHour$
+    \item size of trees (1 stump, 3=1root+2stumps, 7=1root+2trees)
+    \item random vs non-random tree root
+    \item splice and bathymetry dataset
+    \item number of machines, 1, 10, 100
+    \item run for 6000 seconds
+\end{itemize}
+
+Evaluation
+
+\begin{itemize}
+    \item Number of examples scanned per unit time (average over all scanners)
+    
+\end{itemize}
+
+\subsection{Content}
+
 In this section we describe the results of experiments comparing
 the run time of \Sparrow\ with those of two leading implementations of
 boosted trees: XGBoost and LightGBM.

@@ -2,27 +2,30 @@
 
 \begin{figure}
 \centering
-    \includegraphics[width=0.5\textwidth]{figs/SingleMachine.pdf}
+    \includegraphics[width=0.5\textwidth]{figs/HeaderScanner.png}
     \caption{The \Sparrow\ system architecture.}\label{fig:architecture}
     \vspace{0pt}
 %\end{minipage}
 \end{figure}
 
-In this section we give a verbal description of \Sparrow. The
-pseudo-code is available in Appendix~\ref{appendix:pseudocode}.
+In this section we describe \Sparrow.
 
 The main procedure of \Sparrow\ is for identifying a rule that has a significant
 edge (Equation~\ref{eqn:true-edge}). There are two
-subroutines that can execute in parallel in the process: a {\bf Scanner (d)} and a
-{\bf Sampler (b)}. We describe each subroutine in turn.
+subroutines that can execute in parallel in the process: a
+{\bf Header } and multiple {\bf Scanners}. We describe each subroutine in turn.
 
 
 \subsection*{Scanner}
 
 The task of a scanner (element {\bf (d)} in Figure~\ref{fig:architecture})
 is to read training examples sequentially and stop
-when it has identified one of the rules to be a {\em good} rule. More
-specifically, at any time point the scanner stores the current strong
+when it has identified one of the rules to be a {\em good} rule.
+It is is initiated by the Header given 3 parameters: (1) current
+strong rule $H_t$, (2) target edge $\gamma_t$ which is the threshold
+that defines a {\em good} rule, and (3) a sample from the training data.
+
+More specifically, at any time point the scanner stores the current strong
 rule $H_t$, a set of candidate weak rules $\weakRules$ (which
 define the candidate strong rules), and a target
 edge $\gamma_t$. The scanner scans the training examples stored in
@@ -35,36 +38,29 @@ the true edge of a particular weak rule
 $\gamma(h_t)$ is, with high probability,
 larger than a threshold $\gamma$. The
 worker then adds the identified weak rule $h_t$ {\bf (f)} to the current
-strong rule $H_t$ to create a new strong rule $H_{t+1}$ {\bf (g)}.
+strong rule $H_t$ to create a new strong rule $H_{t+1}$.
 The weight of the added rule is calculated assuming that its edge is
 equal to $\gamma$.
 
 The scanner falls into the \textit{Failed} status if after exhausting
 all examples in the current sample set, no weak rule with an advantage
 larger than the threshold $\gamma$ is detected.
-When it happens, \Sparrow\ shrinks the value of the target advantage
-threshold $\gamma$ and restart the scanner.
-In practice, \Sparrow\ keeps track of the empirical edges $\edgeEmp{(h)}$
-of all weak rules $h$.
-When the failure status happens, it resets the threshold $\gamma$
-to be just below the value of the current maximum empirical edge of
-all weak rules (Figure~\ref{fig:edge}).
 
-\begin{figure}
-\centering
-    \includegraphics[width=0.5\textwidth]{figs/edge.png}
-    \caption{The edge of the rules being added to the strong rule
-    (trained on the splice site dataset).
-    New rules are being added to the ensemble with a weight calculated
-    using the value of the threshold $\gamma$ at the time of their
-    detection until no rule with an advantage over $\gamma$ can be detected.
-    At that time \Sparrow\ shrinks the value of the target edge $\gamma$,
-    and restarts the scanner.\label{fig:edge}}
-    \vspace{0pt}
-\end{figure}
+When a scanner terminates, it communicates either the newly accepted
+weak rule or a \textit{Failed} message back to the Header.
+The Header then updates the strong rule and the target edge accordingly.
 
 
-\subsection*{Sampler}
+\subsection*{Header}
+
+The Header plays a rule similar to the Parameter Server. It consists
+of two components, a Scheduler and a Sampler.
+
+
+The Scheduler maintains a global model. It receives the model updates from scanners, and decides whether or not accepting the updates to the global model. If it accepts the model update, the Scheduler updates the global model accordingly, and broadcast the new global model to all Scanners. If the model updates is incompatible with the global model, for example, if it is based on an out-dated global model version, the Scheduler would reject the model updates.
+
+The Scheduler also maintains the value of
+the targeted edge $\gamma$. If no scanner finds a new model update for a long period of time, the Scheduler decreases the value of the targeted edge, and broadcast the new value.
 
 Our assumption is that the entire training dataset does
 not fit into main memory and is therefore stored in external storage
@@ -79,7 +75,8 @@ the old training set and starts using the new one.\footnote{The
   our current implementation the worker alternates between scanning and
   sampling.}
 
-The sampler uses selective sampling by which we mean that the
+
+The Sampler uses selective sampling by which we mean that the
 probability that an example $(x,y)$ is added to the sample is
 proportional to $w(x,y)$. Each added example is assigned an initial
 {\bf weight} of $1$.
@@ -109,3 +106,42 @@ run time for our system.
 
 
 
+\section{Tuning a good policy to set $\gamma$}
+
+The main challenge of Sparrow is to adjust the value of $\gamma$ at a right pace.
+
+Current policy for adjusting gamma is not robust. The header node decreases
+the value of gamma when a certain number of scanners failed to trigger stopping
+rules.
+If the values of gamma decrease too fast, we risk converging to a sub-optimal loss.
+In Figure~\ref{fig:rapid-gamma}, the green curve corresponds to the setting
+where the values of $\gamma$ decrease too fast.
+The green curve (trained with 50 scanners) decreases faster than the orange curve (trained with 10 scanners).
+The value of gamma decreases every time it sees a fixed number of failures, where a failure is defined as a packet from any scanner saying that the stopping rule failed to trigger after scanning all samples. With more scanners, the head node received more failure packets, and decreased the value of gamma more aggressively.
+
+On the other hand, if the values of $\gamma$ decreases too conservatively,
+it could take a very long time to find the right value of $\gamma$ which can trigger the stopping rule.
+
+\begin{figure}
+\centering
+    \includegraphics[width=0.5\textwidth]{paper/figs/stale.png}
+    \caption{The decrease of loss stales when we decreases the value of gamma too rapidly.}\label{fig:rapid-gamma}
+    \vspace{0pt}
+%\end{minipage}
+\end{figure}
+
+One other problem with asynchronous distributed training is that
+with more scanners, we are more likely to find a wrong weak by chance.
+In Figure~\ref{fig:overfit},
+the green curve starts to perform worse on the test set as the result of overfitting
+to the sample set from the training data.
+With more scanners we are more likely to find a bad tree. If we then assign a large $\gamma$ to the
+bad tree, the performance on the test suffers.
+
+\begin{figure}
+\centering
+    \includegraphics[width=0.5\textwidth]{paper/figs/overfit.png}
+    \caption{The weak rule could over-fit to the sampled data when we decreases the value of gamma too slowly.}\label{fig:overfit}
+    \vspace{0pt}
+%\end{minipage}
+\end{figure}
