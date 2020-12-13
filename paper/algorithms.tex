@@ -110,6 +110,13 @@ run time for our system.
 
 The main challenge of Sparrow is to adjust the value of $\gamma$ at a right pace.
 
+We compare Sparrow on the splice site
+dataset same as ~\cite{alafate_sparrow_2019},
+and use LightGBM as the baseline.
+In Figure~\ref{fig:rapid-gamma},
+we show a 5x speed-up from using 1 scanner to
+using 10 scanners, but the speed-up is not significant when we increase from 10 scanners to 50 scanners.
+
 Current policy for adjusting gamma is not robust. The header node decreases
 the value of gamma when a certain number of scanners failed to trigger stopping
 rules.
